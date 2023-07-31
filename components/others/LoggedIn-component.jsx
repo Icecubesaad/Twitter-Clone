@@ -1,11 +1,16 @@
-import React from 'react';
+'use client'
+import AppContext from '@/app/context/AppContext';
+import React, { useContext } from 'react';
+import Spinner from '../Loading/Spinner';
 
 const LoggedIn_Component = () => {
+  const context = useContext(AppContext)
+  const {UserDetails,LoggedIn} = context
     return (
         <div className="w-11/12  h-96 rounded-xl bg-slate-500">
         <div className="flex justify-center items-center h-52 flex-col">
           <div className="h h-32 w-32 bg-slate-900 rounded-full"></div>
-          <div className=" mt-1 text-white">ICECUBE</div>
+          <div className=" mt-1 text-white">{UserDetails.UserName === "" ? <Spinner/> : UserDetails.UserName}</div>
         </div>
         <div className="h-px w-full bg-slate-900"></div>
         <div className="flex flex-row h-32">

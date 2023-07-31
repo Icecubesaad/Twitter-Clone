@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
-import dbConnect from "@/utils/database";
-import User_model from "@/models/UserSchema";
+import dbConnect from "@/server/utils/database";
+import User_model from "@/server/models/UserSchema";
 const bcrypt = require("bcryptjs")
 export async function POST(req,res){
     console.log("reaCHED HERE MAN")

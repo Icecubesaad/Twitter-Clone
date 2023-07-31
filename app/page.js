@@ -1,3 +1,4 @@
+'use client'
 import LeftSidebar from '@/components/LeftSidebar'
 import RightSidebar from '@/components/RightSidebar'
 import Image from 'next/image'
@@ -5,7 +6,37 @@ import InsertPhotoIcon from '@mui/icons-material/InsertPhoto';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import FormatQuoteIcon from '@mui/icons-material/FormatQuote';
 import Tweets from '@/components/cards/Tweets';
+import { Cookies } from 'react-cookie';
+import { useContext, useEffect } from 'react';
+import AppContext from './context/AppContext';
+import Auth_function from '@/hooks/Auth';
 export default function Home() {
+  const context = useContext(AppContext)
+  const {LoggedIn, setLoggedIn, UserDetails,setUserDetails} = context
+  
+  useEffect(() => {
+    const cookies = new Cookies();
+    const token = cookies.get('user') || null;
+    if(token){
+      setLoggedIn(true)
+      getDetails(token)
+    }
+    else{
+      setLoggedIn(false)
+    }
+  }, []);
+  const getDetails = async(data)=>{
+    const data_to_server = {
+      "Token" : data
+    }
+    const request = await Auth_function("/api/getDetails",data_to_server,"POST")
+    const User_data = await request.json()
+    setUserDetails({
+      "UserName" : User_data.message.User_Name,
+      "UserTag":User_data.message.User_tag
+    })
+
+  }
   return (
     <div className='flex flex-row'>
       <LeftSidebar/>

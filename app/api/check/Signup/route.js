@@ -1,5 +1,5 @@
-import User_model from "@/models/UserSchema";
-import dbConnect from "@/utils/database";
+import User_model from "@/server/models/UserSchema";
+import dbConnect from "@/server/utils/database";
 import { NextResponse } from "next/server";
 
 export async function POST(req,res){

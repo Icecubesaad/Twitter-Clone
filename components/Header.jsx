@@ -8,10 +8,11 @@ import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import { useContext } from 'react';
 import AppContext from '@/app/context/AppContext';
+import Spinner from './Loading/Spinner';
 
 const Header = () => {
     const context = useContext(AppContext)
-    const {LoggedIn} = context;
+    const {LoggedIn,UserDetails} = context;
     const sidebar = ()=>{
         const sideBar_component = document.getElementById('sidebar')
         if(sideBar_component.classList.contains('active')){
@@ -44,7 +45,7 @@ const Header = () => {
                         <div className='w-10 border1 border-white bg-white rounded-full h-10'>
 
                         </div>
-                        <div className='text-white text-sm ml-2'>ICECUBE</div>
+                        <div className='text-white text-sm ml-2'>{UserDetails.UserName === "" ? <Spinner/> : UserDetails.UserName}</div>
 
                     </div>
                     <div className='mr-2'>
