@@ -4,7 +4,7 @@ import { useState,useEffect } from 'react';
 import ErrorException from '@/components/error/ErrorException';
 import AppContext from '../context/AppContext';
 import { useRouter } from 'next/navigation';
-import Auth_function from '@/hooks/Auth';
+import Server_call from '@/hooks/PostRequest';
 const Signup = () => {
     const { push } = useRouter();
     const context = useContext(AppContext)
@@ -44,7 +44,7 @@ const Signup = () => {
     const post = async()=>{
         try {
             if(Validation){
-                const response = await Auth_function("/api/check/Signup",Crededetials,"POST")
+                const response = await Server_call("/api/check/Signup",Crededetials,"POST")
                 const response_back = await response.json();
                 console.log("RESPONSE BACK FROM SERVER AHHAHA : ",response_back)
                 if(response_back.message === "Already Exist"){

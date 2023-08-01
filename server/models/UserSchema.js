@@ -15,6 +15,30 @@ const UserSchema = new Schema({
     Password :{
         type : String,
         require : true
+    },
+    Like_list:{
+        type : Array,
+    }
+    ,
+    Followers:
+    {
+        type:Number
+    }
+    ,
+    Following:{
+        type: Number
+    }
+    ,
+    Follower_list:{
+        type : Array
+    }
+    ,
+    Following_list :
+    {
+        type : Array
+    },
+    Total_tweets:{
+        type:Number
     }
 })
 const User_model = mongoose.models.contact || mongoose.model('contact',UserSchema)

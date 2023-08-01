@@ -7,7 +7,8 @@ const AppState = ({ children }) => {
     const [Auth_Crededentials, setAuth_Crededentials] = useState("");
     const [UserDetails, setUserDetails] = useState({
       UserName : "",
-      UserTag : ""
+      UserTag : "",
+      UserId:""
     });
     return (
       <AppContext.Provider value={{ LoggedIn, setLoggedIn, Auth_Crededentials, setAuth_Crededentials, UserDetails, setUserDetails }}>

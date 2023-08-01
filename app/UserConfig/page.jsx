@@ -1,7 +1,7 @@
 'use client'
 import React,{useState,useEffect,useContext} from 'react';
 import ErrorException from '@/components/error/ErrorException';
-import Auth_function from '@/hooks/Auth';
+import Server_call from '@/hooks/PostRequest';
 import AppContext from '../context/AppContext';
 import { useRouter } from 'next/navigation';
 const UserName = () => {
@@ -40,7 +40,7 @@ const UserName = () => {
         }
         try {
             if(Validation){
-                const response = await Auth_function("/api/Signup",Crededetials, "POST")
+                const response = await Server_call("/api/Signup",Crededetials, "POST")
                 const response_back = await response.json();
                 if(response_back.message === "Account already exist"){
                     setValidation(false)

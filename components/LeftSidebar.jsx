@@ -7,7 +7,6 @@ import AppContext from "@/app/context/AppContext";
 const LeftSidebar = () => {
     const context = useContext(AppContext)
     const {LoggedIn} = context
-    console.log("FROM LEFT BAR : ", LoggedIn)
   return (
     <div className="w-1/4 ml-5 flex flex-col gap-2 h-auto bg-black rounded-xl pb-8">
       { LoggedIn ? <LoggedIn_Component/> : <NotLoggedIn/>}

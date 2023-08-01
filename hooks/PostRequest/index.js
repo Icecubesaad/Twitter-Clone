@@ -1,4 +1,4 @@
-const Auth_function = async(route,data,method)=>{
+const Server_call = async(route,data,method)=>{
     const response = await fetch(route,
         {
             method : method,
@@ -8,4 +8,4 @@ const Auth_function = async(route,data,method)=>{
         })
         return response
 }
-export default Auth_function
+export default Server_call

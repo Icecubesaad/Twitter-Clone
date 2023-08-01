@@ -3,7 +3,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import ErrorException from "@/components/error/ErrorException";
 import { redirect, useRouter } from "next/navigation";
-import Auth_function from "@/hooks/Auth";
+import Server_call from "@/hooks/PostRequest";
 import { useCookies } from "react-cookie";
 const Login = () => {
     // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJRCI6eyJpZCI6IjY0YzZjMmFlMzRlZmY1NjVhYjA3Y2YyNSJ9LCJpYXQiOjE2OTA3NDc1OTB9.x4_LcqVjQSHJPorTrYkhgQMDR8w5ueSgOD7G9prbXGY
@@ -25,7 +25,7 @@ const Login = () => {
     });
   };
   const post = async () => {
-    const response = await Auth_function("/api/Login", Crededetials, "POST");
+    const response = await Server_call("/api/Login", Crededetials, "POST");
     const response_back = await response.json();
 
     if (response.status === 400) {

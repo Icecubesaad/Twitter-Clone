@@ -2,12 +2,12 @@ const jwt = require('jsonwebtoken')
 import { NextResponse } from "next/server";
 
 const middleware = async(token)=>{
-    if(!token.Token)
+    if(!token)
 {
     return null
 }
 try {
-const verify = await jwt.verify(token.Token,process.env.SECRET)
+const verify = await jwt.verify(token,process.env.SECRET)
 if(verify){
         let User = verify.ID
         return User
