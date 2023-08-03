@@ -10,8 +10,9 @@ const AppState = ({ children }) => {
       UserTag : "",
       UserId:""
     });
+    const [TweetsState, setTweetsState] = useState([]);
     return (
-      <AppContext.Provider value={{ LoggedIn, setLoggedIn, Auth_Crededentials, setAuth_Crededentials, UserDetails, setUserDetails }}>
+      <AppContext.Provider value={{ TweetsState,setTweetsState,LoggedIn, setLoggedIn, Auth_Crededentials, setAuth_Crededentials, UserDetails, setUserDetails }}>
         {children}
       </AppContext.Provider>
     );

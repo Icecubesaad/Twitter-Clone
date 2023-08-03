@@ -8,6 +8,7 @@ export async function POST(req,res){
     try {
         const data = await req.json()
         const {Text, Image , User_id} = data
+        const imageAmout = Image.length
         const response = await middleware(User_id);
         const UserDetails = await User_model.findOne({_id : response.id})
         await Tweet_model.create({
@@ -15,6 +16,7 @@ export async function POST(req,res){
             "image" : Image,
             "user_id": response.id,
             "postedBy":UserDetails.User_tag,
+            "imageAmount":imageAmout
         })
         return NextResponse.json({
             message : "SUCCESFULL"

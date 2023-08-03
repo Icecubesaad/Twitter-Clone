@@ -3,7 +3,6 @@ import dbConnect from "@/server/utils/database";
 import { NextResponse } from "next/server";
 
 export async function POST(req,res){
-  console.log("CHECKING")
     await dbConnect();
     try {
         const data = await req.json()

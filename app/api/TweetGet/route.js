@@ -3,10 +3,9 @@ import dbConnect from "@/server/utils/database";
 import { NextResponse } from "next/server";
 
 export async function GET(req,res){
-    console.log("GETTING TWEETS")
     await dbConnect();
     try {
-        const data = await Tweet_model.find().limit(3)
+        const data = await Tweet_model.find().limit(3).skip(3)
         return NextResponse.json({
             message : data
         },

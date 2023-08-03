@@ -24,6 +24,9 @@ const Tweet = new Schema({
     ,
     mode:{
         type : String
+    },
+    imageAmount:{
+        type:Number
     }
 })
 const Tweet_model = mongoose.models.tweet || mongoose.model('tweet',Tweet)

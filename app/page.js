@@ -15,12 +15,18 @@ import Server_call from "@/hooks/PostRequest";
 import Get_server_call from "@/hooks/GetRequest";
 import { useState } from "react";
 import { Send } from "@mui/icons-material";
+import Tweet_call from "@/hooks/Tweet";
+import Spinner from "@/components/Loading/Spinner";
 export default function Home() {
   const [media, setmedia] = useState([]);
   const [option, setoption] = useState(false);
   const context = useContext(AppContext);
   const [imagePayload, setimagePayload] = useState("");
-  const { LoggedIn, setLoggedIn, UserDetails, setUserDetails } = context;
+  
+  
+
+
+  const { LoggedIn, setLoggedIn, UserDetails, setUserDetails,TweetsState,setTweetsState } = context;
   // ref for tweet media
   const searchBoxRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -164,7 +170,7 @@ export default function Home() {
 
 
   const PostTweet = async () => {
-    const response = Server_call("/api/TweetPost",Tweet,"POST")
+    const response = Tweet_call("/api/TweetPost",Tweet,"POST")
   };
 
 
@@ -173,8 +179,13 @@ export default function Home() {
     const GetTweets = async()=>{
       const response = await Get_server_call("/api/TweetGet")
       const response_back = await response.json();
-      console.log(response_back)
+        setTweetsState(...TweetsState , response_back.message)
+      
     }
+    useEffect(() => {
+      console.log(TweetsState)
+    }, [TweetsState]);
+
 
   return (
     <div className="flex flex-row">
@@ -190,11 +201,12 @@ export default function Home() {
               style={{ borderRadius: "40px" }}
             ></div>
             <div className="rounded-xl h-12" style={{ width: "80%" }}>
-              <input
+              <textarea
                 onChange={changeTweet}
                 name="Text"
                 placeholder="what's happening"
-                className=" backdrop-blur-sm w-full rounded-xl h-12 text-white font-sans placeholder:text-white bg-slate-900 border-none outline-none pl-5 bg-blend-saturation"
+                style={{overflow:"hidden"}}
+                className=" backdrop-blur-sm w-full rounded-xl h-auto text-white font-sans placeholder:text-white text-lg bg-slate-900 border-none outline-none pl-5 bg-blend-saturation"
               />
             </div>
           </div>
@@ -254,7 +266,12 @@ export default function Home() {
 
           </div>
         </div>
-        <Tweets />
+        { TweetsState.length > 0 ?
+          TweetsState.map((e,index)=>
+            <Tweets Text={e.Text} key={index} Image={e.image} />
+          )
+          : <Spinner/>
+        }
       </div>
       <RightSidebar />
     </div>
