@@ -5,7 +5,9 @@ import ErrorException from '@/components/error/ErrorException';
 import AppContext from '../context/AppContext';
 import { useRouter } from 'next/navigation';
 import Server_call from '@/hooks/PostRequest';
+import Spinner from '@/components/Loading/Spinner';
 const Signup = () => {
+    const [Loading, setLoading] = useState(false);
     const { push } = useRouter();
     const context = useContext(AppContext)
     const {setAuth_Crededentials}  = context
@@ -42,6 +44,8 @@ const Signup = () => {
         }
     }, [Crededetials]);
     const post = async()=>{
+        setLoading(true)
+        setValidation(true)
         try {
             if(Validation){
                 const response = await Server_call("/api/check/Signup",Crededetials,"POST")
@@ -50,9 +54,11 @@ const Signup = () => {
                 if(response_back.message === "Already Exist"){
                     setValidation(false)
                     seterror("ACCOUNT ALREADY EXIST")
+                    setLoading(false)
                 }
                 console.log("Responsive from server : ", response_back)
                 if(response.status === 200){
+                    setLoading(false)
                     setAuth_Crededentials(
                         Crededetials
                     )
@@ -105,9 +111,12 @@ const Signup = () => {
             </div>
             { Validation ? null : <ErrorException message={error} />}
             <div className='w-full flex items-center justify-center mt-8'>
-                <button id='btn_post' onClick={post} className=' w-40 h-14 bg-slate-600 rounded-xl text-lg text-white'>
-                    Sign Up
-                </button>
+            <button
+            onClick={post}
+            className=" w-40 h-14 background_of_sub_component_contrast rounded-xl text-lg text-white flex items-center justify-center"
+          >
+            {!Loading ? <div>Sign Up</div> : <div className=" pt-2 pr-2 w-full h-full flex item-center justify-center"><Spinner/></div>}
+          </button>
             </div>
         </div>
         </div>

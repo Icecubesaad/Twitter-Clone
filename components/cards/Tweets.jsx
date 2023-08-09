@@ -6,7 +6,26 @@ import ReplyIcon from "@mui/icons-material/Reply";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
 import BrushIcon from "@mui/icons-material/Brush";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-const Tweets = ({ Text, Image, key, ImageAmount,author }) => {
+import { useContext } from "react";
+import AppContext from "@/app/context/AppContext";
+import like_tweet from "@/hooks/likeTweet";
+import { ThumbUp, ThumbsUpDown } from "@mui/icons-material";
+const Tweets = ({ Text, Image, unique, ImageAmount,author,authorImage }) => {
+  const context = useContext(AppContext)
+  const [UserId, setUserId] = useState(null);
+  useEffect(() => {
+    if(UserId){
+      return
+    }
+    getUserId()
+  }, []);
+  const getUserId = ()=>{
+    const {UserDetails} = context
+    setUserId(UserDetails.UserId)
+  }
+  useEffect(() => {
+    console.log(UserId)
+  }, [UserId]);
   const [ImageStyle, setImageStyle] = useState({
    image :  {height:"100%",width:"100%"}
   });
@@ -122,7 +141,7 @@ const Tweets = ({ Text, Image, key, ImageAmount,author }) => {
     }
   }, []);
   return (
-    <div className="w-full flex flex-col items-center mr-1 mt-2" key={key}>
+    <div className="w-full flex flex-col items-center mr-1 mt-2" key={unique}>
       <div
         className="h background_of_sub_component text-white h-auto pb-5 flex flex-col rounded-xl"
         style={{ width: "98%" }}
@@ -136,6 +155,7 @@ const Tweets = ({ Text, Image, key, ImageAmount,author }) => {
             className="w-1/12 bg-amber-100"
             style={{ borderRadius: "40px",height:"53px" }}
           >
+            {authorImage ? <img src={authorImage} style={ImageStyle.image} className=" border-1 rounded-full" /> : null}
           </div>
           <div>{author}</div>
           </div>
@@ -155,7 +175,7 @@ const Tweets = ({ Text, Image, key, ImageAmount,author }) => {
             )}
           </div>
         </div>
-        { Image[0] !== "null" ? <div
+        { Image && Image[0] !== "null" ? <div
           className=" flex item-center justify-center pb-3 ml-10"
           style={ImageGrid.main}
         >
@@ -196,6 +216,10 @@ const Tweets = ({ Text, Image, key, ImageAmount,author }) => {
             </div>
           ) : null}
         </div>:null}
+        <div className=" ml-5 flex flex-row gap-2">
+          <div className=" h-7 w-7 border-1 rounded-full bg-blue-700 flex items-center justify-center"><ThumbUp sx={{ fontSize: 20 }}/></div>
+          <div>0</div>
+        </div>
         <div className="flex flex-row gap-5 ml-20">
           <div
             style={{ transition: "all 300ms" }}

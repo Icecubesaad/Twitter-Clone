@@ -1,7 +1,7 @@
 'use client'
 import React,{useEffect,useState,useRef} from 'react';
 import ErrorException from './error/ErrorException';
-const UploadPhoto = ({change_image}) => {
+const UploadPhoto = ({change_image,loading_post}) => {
     const searchBoxRef = useRef(null);
   const fileInputRef = useRef(null);
     const [media, setmedia] = useState([]);
@@ -60,9 +60,12 @@ const UploadPhoto = ({change_image}) => {
                 onChange={handleFileInputChange}
                  type='file' />
             <div className='w-full flex items-center justify-center mt-8'>
-                <button onClick={()=>{change_image(media)}} id='btn_post'  className=' w-40 h-14 bg-slate-600 rounded-xl text-lg text-white'>
-                    Sign Up
-                </button>
+                <button
+            onClick={()=>{change_image(media)}}
+            className=" w-40 h-14 background_of_sub_component_contrast rounded-xl text-lg text-white flex items-center justify-center"
+          >
+            {!loading_post ? <div>Sign Up</div> : <div className=" pt-2 pr-2 w-full h-full flex item-center justify-center"><Spinner/></div>}
+          </button>
             </div>
         </div>
         </div>

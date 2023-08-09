@@ -19,6 +19,7 @@ import Tweet_call from "@/hooks/Tweet";
 import Spinner from "@/components/Loading/Spinner";
 export default function Home() {
   const {push} = useRouter()
+  const [loadingPost, setloadingPost] = useState(false);
   const [hasMore, sethasMore] = useState(true);
   const [fetching, setfetching] = useState(false);
   const [limit, setlimit] = useState(3);
@@ -30,7 +31,7 @@ export default function Home() {
   const [imagePayload, setimagePayload] = useState("");
   const [skip, setskip] = useState(0);
   
-
+  
 
   const { LoggedIn, setLoggedIn, UserDetails, setUserDetails,TweetsState,setTweetsState,Total_Documents,SetTotal_Documents } = context;
   // ref for tweet media
@@ -192,15 +193,12 @@ export default function Home() {
 
 
   const PostTweet = async () => {
+    setloadingPost(true)
     const response = await Server_call("/api/TweetPost",Tweet,"POST");
     const response_back = await response.json()
     if(response_back.message === 'SUCCESS'){
+      setloadingPost(false)
       setTweetsState([Tweet,...TweetsState])
-      setTweet({
-        Image:"",
-        User_id:"",
-        Text:""
-      })
     }
   };
 
@@ -267,6 +265,9 @@ export default function Home() {
     useEffect(() => {
       console.log(TweetsState)
     }, [TweetsState]);
+
+
+    
   return (
     <div className="flex flex-row">
       <LeftSidebar />
@@ -318,11 +319,6 @@ export default function Home() {
           </div>
 
 
-
-
-
-
-
           <div className="flex flex-row gap-8 ml-20">
             <div>
               <button
@@ -355,16 +351,16 @@ export default function Home() {
             <button
             onClick={PostTweet}
               style={{ transition: "all 300ms" }}
-              className="w cursor-pointer w-auto pl-4 pr-4 flex flex-row items-center gap-1 text-white h-12 border-1 pt-4 hover:bg-slate-500 pb-4 background_of_sub_component_contrast rounded-lg"
+              className="w cursor-pointer w-auto pl-4 pr-4 flex flex-row items-center gap-1 text-white h-12 border-1 hover:bg-slate-500 pb-4 background_of_sub_component_contrast rounded-lg justify-center"
             >
-              <Send sx={{ color: "white" }} /> Post
+               {!loadingPost ? <div className="pt-4"><Send sx={{ color: "white" }} /> Post</div> : <div className="pr-4"><Spinner/></div>}
             </button>
 
           </div>
         </div>:null}
         { TweetsState.length>0 ?
           TweetsState.map((e,index)=>
-            <Tweets author={e.postedBy} Text={e.Text} key={index} Image={e.image} ImageAmount={e.imageAmount} />
+            <Tweets authorImage={e.UserImage} author={e.postedBy} Text={e.Text} unique={e._id} Image={e.image} ImageAmount={e.imageAmount} User_using={UserDetails.UserId} />
           )
           : null
         }

@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import Spinner from '@/components/Loading/Spinner';
 import UploadPhoto from '@/components/UploadPhoto';
 const UserName = () => {
+    const [loading_post, setloading_post] = useState(false);
     const [loading, setloading] = useState(false);
     const [ready_to_post, setready_to_post] = useState(false);
     const {push} = useRouter()
@@ -29,20 +30,25 @@ const UserName = () => {
     const [Validation, setValidation] = useState(true);
     const [error, seterror] = useState("");
     const post = async()=>{
+        setValidation(true)
+        setloading_post(true)
         console.log("posting")
         const {User_Name,User_tag,Image} = Auth_Crededentials
         console.log("before posting : ",Image)
        if(User_Name.length<1){
         setValidation(false)
         seterror(" must be 1 letter long")
+        setloading_post(false)
        }
        if(User_tag.length<1){
         setValidation(false)
         seterror("User Tag must be 1 letter long")
+        setloading_post(false)
        }
        if(User_Name.length < 1 && User_tag.length < 1){
         setValidation(false)
         seterror("User Tag and Username must be 1 letter long")
+        setloading_post(false)
        }
         else{
             setValidation(true)
@@ -54,13 +60,17 @@ const UserName = () => {
                 if(response_back.message === "Account already exist"){
                     setValidation(false)
                     seterror("ACCOUNT ALREADY EXIST")
+                    setloading_post(false)
                 }
                 console.log("Responsive from server : ", response_back)
                 if(response.status === 200){
+                    setValidation(true)
+                    setloading_post(false)
                     setCrededetials({
                         "User_Name":"",
                         "User_tag":""
                     })
+                    push("/Login")
                 }
                 if(response_back.message === "Validation Error"){
                     setValidation(false)
@@ -90,7 +100,7 @@ const UserName = () => {
         }, 10000);
     }, [Validation]);
     const change_image = (image)=>{
-    
+        setloading_post(true)
         if(image){
             setAuth_Crededentials({
                 ...Auth_Crededentials,Image : image[0]
@@ -107,6 +117,7 @@ const UserName = () => {
         }
     }, [Auth_Crededentials.Image]);
     const Changing_style = ()=>{
+
         setAuth_Crededentials(Crededetials)
         const container_element = document.getElementById("getting_name")
         const container_element2 = document.getElementById("after_post")
@@ -132,15 +143,18 @@ const UserName = () => {
             </div>
             { Validation ? null : <ErrorException message={error} />}
             <div className='w-full flex items-center justify-center mt-8'>
-                <button id='btn_post' onClick={Changing_style} className=' w-40 h-14 bg-slate-600 rounded-xl text-lg text-white'>
-                    Sign Up
-                </button>
+            <button
+            onClick={Changing_style}
+            className=" w-40 h-14 background_of_sub_component_contrast rounded-xl text-lg text-white flex items-center justify-center"
+          >
+            {!loading_post ? <div>Sign Up</div> : <div className=" pt-2 pr-2 w-full h-full flex item-center justify-center"><Spinner/></div>}
+          </button>
             </div>
         </div>
         </div>
         <div style={{display:"none"}} id='after_post'>
             {
-                loading ? <Spinner/> : <UploadPhoto change_image={change_image}/>
+                loading ? <Spinner/> : <UploadPhoto loading_post={loading_post} change_image={change_image}/>
             }
         </div>
         </>
