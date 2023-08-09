@@ -3,8 +3,8 @@ import React from 'react';
 const Follow = () => {
     return (
         <>
-        <div className='flex flex-row gap-12 h-24 items-center justify-center'>
-            <div className=' h-12 w-12 rounded-full bg-white'></div>
+        <div className='flex flex-row gap-12 h-24 items-center justify-center text-white'>
+            <div className=' h-12 w-12 rounded-full bg-white text-white'></div>
             <div>
                 ICECUBE
                 <p>@icecube</p>

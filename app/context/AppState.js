@@ -8,11 +8,13 @@ const AppState = ({ children }) => {
     const [UserDetails, setUserDetails] = useState({
       UserName : "",
       UserTag : "",
-      UserId:""
+      UserId:"",
+      Image:""
     });
+    const [Total_Documents,SetTotal_Documents]=useState(0);
     const [TweetsState, setTweetsState] = useState([]);
     return (
-      <AppContext.Provider value={{ TweetsState,setTweetsState,LoggedIn, setLoggedIn, Auth_Crededentials, setAuth_Crededentials, UserDetails, setUserDetails }}>
+      <AppContext.Provider value={{ Total_Documents,SetTotal_Documents,TweetsState,setTweetsState,LoggedIn, setLoggedIn, Auth_Crededentials, setAuth_Crededentials, UserDetails, setUserDetails }}>
         {children}
       </AppContext.Provider>
     );

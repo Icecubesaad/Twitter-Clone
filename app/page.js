@@ -3,7 +3,7 @@ import LeftSidebar from "@/components/LeftSidebar";
 import RightSidebar from "@/components/RightSidebar";
 import Image from "next/image";
 import InsertPhotoIcon from "@mui/icons-material/InsertPhoto";
-
+import { useRouter } from "next/navigation";
 import { useRef } from "react";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 import FormatQuoteIcon from "@mui/icons-material/FormatQuote";
@@ -18,15 +18,21 @@ import { Send } from "@mui/icons-material";
 import Tweet_call from "@/hooks/Tweet";
 import Spinner from "@/components/Loading/Spinner";
 export default function Home() {
+  const {push} = useRouter()
+  const [hasMore, sethasMore] = useState(true);
+  const [fetching, setfetching] = useState(false);
+  const [limit, setlimit] = useState(3);
+  const [DocumentLeft, setDocumentLeft] = useState(null);
+  const [loading, setloading] = useState(true);
   const [media, setmedia] = useState([]);
   const [option, setoption] = useState(false);
   const context = useContext(AppContext);
   const [imagePayload, setimagePayload] = useState("");
-  
+  const [skip, setskip] = useState(0);
   
 
 
-  const { LoggedIn, setLoggedIn, UserDetails, setUserDetails,TweetsState,setTweetsState } = context;
+  const { LoggedIn, setLoggedIn, UserDetails, setUserDetails,TweetsState,setTweetsState,Total_Documents,SetTotal_Documents } = context;
   // ref for tweet media
   const searchBoxRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -36,10 +42,9 @@ export default function Home() {
     // tweet payload
   const [Tweet, setTweet] = useState({
     Text: "",
-    Image: [], 
+    Image: ["null"], 
     User_id : ""
   });
-
 
 
 
@@ -72,8 +77,7 @@ export default function Home() {
 
 
   const handleFileInputChange = async (event) => {
-    console.log("TRIGGERED");
-    console.log(event);
+  
     const file = event.target.files[0];
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -89,8 +93,11 @@ export default function Home() {
   // media of tweet
 
   useEffect(() => {
-    changingMediaState(media);
+      changingMediaState(media);
   }, [media]);
+
+
+
   const changingMediaState = (media) => {
     setTweet({
       ...Tweet,
@@ -104,7 +111,21 @@ export default function Home() {
 
 
   useEffect(() => {
-    GetTweets()
+    if(TweetsState.length===0){
+      GetTweets(limit,skip)   
+    }
+    checkingToken()
+    const interval = setInterval(checkingToken, 60 * 60 * 1000); // 1 hour interval
+
+    // Clean up the interval when the component is unmounted
+    return () => {
+      clearInterval(interval);
+    };
+  }, []);
+
+  // Setting token in Tweet Payload
+  const checkingToken = ()=>{
+    console.log("heh")
     const cookies = new Cookies();
     token = cookies.get("user") || null;
     if (token) {
@@ -114,14 +135,14 @@ export default function Home() {
     } else {
       setLoggedIn(false);
     }
-  }, []);
+  }
 
-  // Setting token in Tweet Payload
 
 
   const settingToken =(token)=>{
     setTweet({
-      User_id : token
+      User_id : token,
+      "Image":["null"]
     })
   }
 
@@ -142,11 +163,10 @@ export default function Home() {
     setUserDetails({
       UserName: User_data.message.User_Name,
       UserTag: User_data.message.User_tag,
-      UserId : User_data.message._id
+      UserId : User_data.message._id,
+      Image:User_data.message.Image
     });
   };
-
-
 
 
   // changing tweet credit (might turn it into a seprate function)
@@ -159,6 +179,8 @@ export default function Home() {
       ...Tweet,
       [name]: value,
     });
+    e.target.style.height = 'auto';
+    e.target.style.height = `${e.target.scrollHeight}px`;
   };
 
 
@@ -170,43 +192,117 @@ export default function Home() {
 
 
   const PostTweet = async () => {
-    const response = Tweet_call("/api/TweetPost",Tweet,"POST")
+    const response = await Server_call("/api/TweetPost",Tweet,"POST");
+    const response_back = await response.json()
+    if(response_back.message === 'SUCCESS'){
+      setTweetsState([Tweet,...TweetsState])
+      setTweet({
+        Image:"",
+        User_id:"",
+        Text:""
+      })
+    }
   };
 
 
+  useEffect(() => {
+    console.log(Tweet)
+  }, [Tweet]);
+
+
+  const FetchNewData = async()=>{
+    console.log("getting new document of limit : ",limit," documents left are : ",DocumentLeft)
+    console.log("from fetched data : ",TweetsState)
+    const response = await Get_server_call(`/api/TweetGet?limit=${limit}&skip=${skip}`)
+      const response_back = await response.json();
+      if(response_back.message.data){
+        setskip(e=>e+3)
+        setDocumentLeft(response_back.message.DocumentsLeft)
+        console.log("Document Left : ",response_back.message.DocumentLeft)
+        console.log(typeof(response_back.message.data))     // object
+        console.log("raw : ",response_back.message.data)
+        setTweetsState([...TweetsState,...response_back.message.data])
+        setfetching(true)
+      }
+  }
+
   // getting tweets from Database
 
-    const GetTweets = async()=>{
-      const response = await Get_server_call("/api/TweetGet")
+    const GetTweets = async(limit,skip)=>{
+      console.log("inside a function : ",TweetsState)
+      const response = await Get_server_call(`/api/TweetGet?limit=${limit}&skip=${skip}`)
       const response_back = await response.json();
-        setTweetsState(...TweetsState , response_back.message)
-      
+      if(response_back.message.data){
+        setskip(e=>e+3)
+        console.log("fetched the initial data")
+        setDocumentLeft(response_back.message.DocumentsLeft)
+        console.log("Documents Requested: ",limit," Documents Left : ",response_back.message.DocumentsLeft)
+        setTweetsState([...response_back.message.data])
+        setfetching(true)
+      }
+      return response_back
     }
+
+
+
+    useEffect(() => {
+      console.log("TRIGGEREd")
+      console.log(DocumentLeft)
+      if(DocumentLeft<5 && DocumentLeft>0 && DocumentLeft!=null){
+        setlimit(DocumentLeft)
+      }
+      if(DocumentLeft<=0  && DocumentLeft!=null){
+        console.log("All the data has been fetched")
+        sethasMore(false)
+      }
+      if(DocumentLeft>0 && fetching && DocumentLeft!=null)
+      {
+        console.log("FETCHING NEW DATa")
+        FetchNewData()
+      }
+    }, [DocumentLeft]);
+
+
+
     useEffect(() => {
       console.log(TweetsState)
     }, [TweetsState]);
-
-
   return (
     <div className="flex flex-row">
       <LeftSidebar />
-      <div className="w-2/4 flex flex-col gap-2 items-center mr-5">
-        <div
-          className="h bg-slate-500 h-auto flex flex-col rounded-xl pb-5"
+      <div className=" element-with-scrollbar w-2/4 flex flex-col gap-2 items-center mr-5" style={{height:"120vh" , overflow:"hidden", overflowY : "scroll"}}>
+        {LoggedIn ? <div
+          className="h background_of_sub_component h-auto flex flex-col rounded-xl pb-5"
           style={{ width: "98%" }}
         >
-          <div className="h-24 w-full ml-4 flex flex-row gap-4 pt-2">
+          <div className="h-auto w-full ml-3 flex flex-row gap-4 pt-2">
             <div
-              className="h-14 w-1/12 bg-amber-100"
-              style={{ borderRadius: "40px" }}
-            ></div>
-            <div className="rounded-xl h-12" style={{ width: "80%" }}>
+            
+              className="w-1/12 bg-amber-100"
+              style={{ borderRadius: "40px",height:"53px" }}
+            >
+              <img src={UserDetails.Image} className=" rounded-full border-1 border-black" style={{height:"100%",width:"100%"}} />
+            </div>
+            <div className="rounded-xl h-auto" style={{ width: "80%" }}>
               <textarea
                 onChange={changeTweet}
                 name="Text"
+                className="background_of_sub_component_contrast"
                 placeholder="what's happening"
-                style={{overflow:"hidden"}}
-                className=" backdrop-blur-sm w-full rounded-xl h-auto text-white font-sans placeholder:text-white text-lg bg-slate-900 border-none outline-none pl-5 bg-blend-saturation"
+                style={{
+                  overflow: 'hidden',
+                  width: '100%',
+                  height: 'auto',
+                  resize: 'none', // Change this to your desired background color
+                  color: 'white',
+                  fontFamily: 'sans-serif',
+                  fontSize: '1.25rem',
+                  borderRadius: '1rem',
+                  border: 'none',
+                  outline: 'none',
+                  padding: '1rem',
+                }}
+                // className=" backdrop-blur-sm w-full rounded-xl h-auto text-white font-sans placeholder:text-white text-lg bg-slate-900 border-none outline-none pl-5 bg-blend-saturation"
               />
             </div>
           </div>
@@ -227,12 +323,12 @@ export default function Home() {
 
 
 
-          <div className="flex flex-row gap-5 ml-20">
+          <div className="flex flex-row gap-8 ml-20">
             <div>
               <button
                 style={{ transition: "all 300ms" }}
                 onClick={handleSelectFile}
-                className="w cursor-pointer w-auto pl-4 pr-4 flex flex-row items-center gap-1 text-white h-8 border-2 pt-4 hover:bg-slate-500 bg-slate-900 pb-4 border-slate-900 rounded-3xl"
+                className="w cursor-pointer w-auto pl-4 pr-4 flex flex-row items-center gap-1 text-white h-12 border-1 pt-4 hover:bg-slate-500 background_of_sub_component_contrast pb-4  rounded-lg"
               >
                 <InsertPhotoIcon sx={{ color: "green" }} /> images
               </button>
@@ -246,32 +342,33 @@ export default function Home() {
 
             <div
               style={{ transition: "all 300ms" }}
-              className="w cursor-pointer w-auto pl-4 pr-4 flex flex-row items-center gap-1 text-white h-8 border-2 pt-4 hover:bg-slate-500 bg-slate-900 pb-4 border-slate-900 rounded-3xl"
+              className="w cursor-pointer w-auto pl-4 pr-4 flex flex-row items-center gap-1 text-white h-12 border-1 pt-4 hover:bg-slate-500  pb-4 background_of_sub_component_contrast rounded-lg"
             >
               <PlayCircleIcon sx={{ color: "blue" }} /> video
             </div>
             <div
               style={{ transition: "all 300ms" }}
-              className="w cursor-pointer w-auto pl-4 pr-4 flex flex-row items-center gap-1 text-white h-8 border-2 pt-4 hover:bg-slate-500 bg-slate-900 pb-4 border-slate-900 rounded-3xl"
+              className="w cursor-pointer w-auto pl-4 pr-4 flex flex-row items-center gap-1 text-white h-12 border-1 pt-4 hover:bg-slate-500  pb-4 background_of_sub_component_contrast rounded-lg"
             >
               <FormatQuoteIcon sx={{ color: "orange" }} /> quote
             </div>
             <button
             onClick={PostTweet}
               style={{ transition: "all 300ms" }}
-              className="w cursor-pointer w-auto pl-4 pr-4 flex flex-row items-center gap-1 text-white h-8 border-2 pt-4 hover:bg-slate-500 bg-slate-900 pb-4 border-slate-900 rounded-3xl"
+              className="w cursor-pointer w-auto pl-4 pr-4 flex flex-row items-center gap-1 text-white h-12 border-1 pt-4 hover:bg-slate-500 pb-4 background_of_sub_component_contrast rounded-lg"
             >
               <Send sx={{ color: "white" }} /> Post
             </button>
 
           </div>
-        </div>
-        { TweetsState.length > 0 ?
+        </div>:null}
+        { TweetsState.length>0 ?
           TweetsState.map((e,index)=>
-            <Tweets Text={e.Text} key={index} Image={e.image} />
+            <Tweets author={e.postedBy} Text={e.Text} key={index} Image={e.image} ImageAmount={e.imageAmount} />
           )
-          : <Spinner/>
+          : null
         }
+       {DocumentLeft>0 ? <div className=" flex items-center justify-center"><Spinner/></div> : <div className=" text-white">No more tweets ):</div>}
       </div>
       <RightSidebar />
     </div>

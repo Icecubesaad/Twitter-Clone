@@ -8,7 +8,6 @@ const Tweet = new Schema({
     ,
     Likes:{
         type:Number,
-        require : true
     }
     ,
     image:{
@@ -27,6 +26,9 @@ const Tweet = new Schema({
     },
     imageAmount:{
         type:Number
+    },
+    UserImage:{
+        type:String
     }
 })
 const Tweet_model = mongoose.models.tweet || mongoose.model('tweet',Tweet)

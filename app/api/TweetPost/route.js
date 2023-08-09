@@ -4,28 +4,31 @@ import User_model from "@/server/models/UserSchema"
 import dbConnect from "@/server/utils/database"
 import { NextResponse } from "next/server"
 export async function POST(req,res){
-    await dbConnect()
+    console.log("HELLo")
     try {
+        await dbConnect()
         const data = await req.json()
         const {Text, Image , User_id} = data
-        const imageAmout = Image.length
         const response = await middleware(User_id);
         const UserDetails = await User_model.findOne({_id : response.id})
+        const imageAmount = Image.length
         await Tweet_model.create({
             "Text" : Text,
             "image" : Image,
             "user_id": response.id,
             "postedBy":UserDetails.User_tag,
-            "imageAmount":imageAmout
+            "imageAmount":imageAmount,
+            "Likes":0,
+            "UserImage":UserDetails.Image
         })
         return NextResponse.json({
-            message : "SUCCESFULL"
+            message : "SUCCESS"
         },{
             status:200
         })
     } catch (error) {
         return NextResponse.json({
-            message : error
+            message : "internal server error"
         },
         
         {

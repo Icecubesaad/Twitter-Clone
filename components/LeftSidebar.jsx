@@ -6,11 +6,11 @@ import NotLoggedIn from "./others/NotLoggedIn";
 import AppContext from "@/app/context/AppContext";
 const LeftSidebar = () => {
     const context = useContext(AppContext)
-    const {LoggedIn} = context
+    const {LoggedIn,UserDetails} = context
   return (
-    <div className="w-1/4 ml-5 flex flex-col gap-2 h-auto bg-black rounded-xl pb-8">
+    <div className="w-1/4 ml-5 flex flex-col gap-2 h-auto  rounded-xl pb-8" style={{backgroundColor:"#06141d"}}>
       { LoggedIn ? <LoggedIn_Component/> : <NotLoggedIn/>}
-      <div className="h h-auto w-11/12 rounded-xl bg-slate-500 flex flex-col">
+      <div className=" background_of_sub_component h h-auto w-11/12 rounded-xl  flex flex-col">
         <div>
           <Follow />
           <Follow />

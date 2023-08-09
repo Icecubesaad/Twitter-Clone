@@ -5,10 +5,12 @@ import ErrorException from "@/components/error/ErrorException";
 import { redirect, useRouter } from "next/navigation";
 import Server_call from "@/hooks/PostRequest";
 import { useCookies } from "react-cookie";
+import Spinner from "@/components/Loading/Spinner";
 const Login = () => {
     // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJRCI6eyJpZCI6IjY0YzZjMmFlMzRlZmY1NjVhYjA3Y2YyNSJ9LCJpYXQiOjE2OTA3NDc1OTB9.x4_LcqVjQSHJPorTrYkhgQMDR8w5ueSgOD7G9prbXGY
     // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJRCI6eyJpZCI6IjY0YzJjNjY4N2YxMGRjNTM1YTllMjVmYyJ9LCJpYXQiOjE2OTA3NDc2NzB9.9oieXqeiHFIKCZWiLZ6QrBkhyiravmo1H0W8wkY2H6Q
   const [cookie, setCookie] = useCookies(["user"]);
+  const [loading, setloading] = useState(false);
   const { push } = useRouter();
   const [error, seterror] = useState("");
   const [Validation, setValidation] = useState(true);
@@ -25,6 +27,7 @@ const Login = () => {
     });
   };
   const post = async () => {
+    setloading(true)
     const response = await Server_call("/api/Login", Crededetials, "POST");
     const response_back = await response.json();
 
@@ -33,6 +36,7 @@ const Login = () => {
       seterror("Wrong Crededentials");
     }
     if (response.status === 200) {
+      setloading(false)
       setCookie("user", response_back.message, {
         path: "/",
         maxAge: 3600, // Expires after 1hr
@@ -52,7 +56,7 @@ const Login = () => {
   }, [Validation]);
   return (
     <div className="w-full h-screen flex justify-center items-center">
-      <div className=" w-1/3 m-auto bg-slate-900 rounded-xl h-4/5 pt-6">
+      <div className=" w-1/3 m-auto background_of_sub_component rounded-xl h-4/5 pt-6">
         <div className="text-white font-bold text-5xl text-center">Sign In</div>
         <div className="w-full flex flex-col justify-center items-center gap-6 mt-6">
           <div className="flex flex-col justify-start w-11/12">
@@ -78,9 +82,9 @@ const Login = () => {
         <div className="w-full flex items-center justify-center mt-8">
           <button
             onClick={post}
-            className=" w-40 h-14 bg-slate-600 rounded-xl text-lg text-white"
+            className=" w-40 h-14 background_of_sub_component_contrast rounded-xl text-lg text-white flex items-center justify-center"
           >
-            Sign In
+            {!loading ? <div>Sign In</div> : <div className=" pt-2 pr-2 w-full h-full flex item-center justify-center"><Spinner/></div>}
           </button>
         </div>
       </div>
