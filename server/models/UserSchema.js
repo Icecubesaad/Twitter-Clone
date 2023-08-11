@@ -42,6 +42,9 @@ const UserSchema = new Schema({
     },
     Total_tweets:{
         type:Number
+    },
+    Notifications:{
+        type:Array
     }
 })
 const User_model = mongoose.models.contact || mongoose.model('contact',UserSchema)

@@ -10,22 +10,44 @@ import { useContext } from "react";
 import AppContext from "@/app/context/AppContext";
 import like_tweet from "@/hooks/likeTweet";
 import { ThumbUp, ThumbsUpDown } from "@mui/icons-material";
-const Tweets = ({ Text, Image, unique, ImageAmount,author,authorImage }) => {
+const Tweets = ({ Text, Image, unique, ImageAmount,author,authorImage,LikedBy,Likes }) => {
+  const [TweetLikes, setTweetLikes] = useState(Likes);
+  const [liked, setliked] = useState(false);
   const context = useContext(AppContext)
+  const {UserDetails} = context
   const [UserId, setUserId] = useState(null);
   useEffect(() => {
     if(UserId){
       return
     }
     getUserId()
+    if(LikedBy.includes(UserDetails.UserId)){
+        setliked(true)
+    }
   }, []);
+  useEffect(() => {
+    if(UserDetails.UserId){
+      if(LikedBy.includes(UserDetails.UserId)){           // working
+        setliked(true)
+      }
+    }
+    else{
+      setliked(false)
+    }
+  }, [UserDetails.UserId]);
+  const like = ()=>{
+    like_tweet(unique,"like",UserId,author)
+    setTweetLikes((e)=>e+1)
+  }
+  const dislike = ()=>{
+  
+    like_tweet(unique,"dislike",UserId)
+    setTweetLikes((e)=>e-1)
+
+  }
   const getUserId = ()=>{
-    const {UserDetails} = context
     setUserId(UserDetails.UserId)
   }
-  useEffect(() => {
-    console.log(UserId)
-  }, [UserId]);
   const [ImageStyle, setImageStyle] = useState({
    image :  {height:"100%",width:"100%"}
   });
@@ -218,15 +240,24 @@ const Tweets = ({ Text, Image, unique, ImageAmount,author,authorImage }) => {
         </div>:null}
         <div className=" ml-5 flex flex-row gap-2">
           <div className=" h-7 w-7 border-1 rounded-full bg-blue-700 flex items-center justify-center"><ThumbUp sx={{ fontSize: 20 }}/></div>
-          <div>0</div>
+          <div>{TweetLikes}</div>
         </div>
         <div className="flex flex-row gap-5 ml-20">
+        {(LikedBy.includes(UserDetails.UserId) && liked) || liked
+        ? 
+        <div
+        style={{ transition: "all 300ms" }}
+        className="w cursor-pointer w-auto pl-4 pr-4 flex flex-row items-center gap-1 text-white h-12 border-1 pt-4 hover:bg-slate-500 background_of_sub_component_contrast pb-4 rounded-lg"
+        onClick={()=>{dislike(),setliked(false)}}
+      ><FavoriteIcon sx={{color:"red"}}/> Liked</div>
+              : 
           <div
             style={{ transition: "all 300ms" }}
             className="w cursor-pointer w-auto pl-4 pr-4 flex flex-row items-center gap-1 text-white h-12 border-1 pt-4 hover:bg-slate-500 background_of_sub_component_contrast pb-4 rounded-lg"
+            onClick={()=>{like(),setliked(true)}}
           >
-            <FavoriteIcon /> like
-          </div>
+              <FavoriteIcon /> like </div> 
+              }
           <div
             style={{ transition: "all 300ms" }}
             className="w cursor-pointer w-auto pl-4 pr-4 flex flex-row items-center gap-1 text-white h-12 border-1 pt-4 hover:bg-slate-500 background_of_sub_component_contrast pb-4  rounded-lg"

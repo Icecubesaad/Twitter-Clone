@@ -17,6 +17,8 @@ import { useState } from "react";
 import { Send } from "@mui/icons-material";
 import Tweet_call from "@/hooks/Tweet";
 import Spinner from "@/components/Loading/Spinner";
+import checkLikes from "@/hooks/checkLikes";
+import { set } from "mongoose";
 export default function Home() {
   const {push} = useRouter()
   const [loadingPost, setloadingPost] = useState(false);
@@ -33,7 +35,7 @@ export default function Home() {
   
   
 
-  const { LoggedIn, setLoggedIn, UserDetails, setUserDetails,TweetsState,setTweetsState,Total_Documents,SetTotal_Documents } = context;
+  const { LoggedIn,setLikedList,LikedList, setLoggedIn, UserDetails, setUserDetails,TweetsState,setTweetsState,Total_Documents,SetTotal_Documents } = context;
   // ref for tweet media
   const searchBoxRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -165,7 +167,9 @@ export default function Home() {
       UserName: User_data.message.User_Name,
       UserTag: User_data.message.User_tag,
       UserId : User_data.message._id,
-      Image:User_data.message.Image
+      Image:User_data.message.Image,
+      LikedList : User_data.message.Like_list,
+      Notifications : User_data.message.Notifications
     });
   };
 
@@ -198,7 +202,11 @@ export default function Home() {
     const response_back = await response.json()
     if(response_back.message === 'SUCCESS'){
       setloadingPost(false)
-      setTweetsState([Tweet,...TweetsState])
+      setTweet({
+        Image:"",
+        Text:"",
+        User_id:""
+      })
     }
   };
 
@@ -263,9 +271,15 @@ export default function Home() {
 
 
     useEffect(() => {
-      console.log(TweetsState)
-    }, [TweetsState]);
-
+      gettingLikedList()
+    }, [TweetsState,UserDetails]);
+    const gettingLikedList = async()=>{
+      let array = await checkLikes(UserDetails.LikedList,TweetsState)
+      setLikedList(array)
+    }
+    useEffect(() => {
+      console.log(LikedList)
+    }, [LikedList]);
 
     
   return (
@@ -360,7 +374,7 @@ export default function Home() {
         </div>:null}
         { TweetsState.length>0 ?
           TweetsState.map((e,index)=>
-            <Tweets authorImage={e.UserImage} author={e.postedBy} Text={e.Text} unique={e._id} Image={e.image} ImageAmount={e.imageAmount} User_using={UserDetails.UserId} />
+            <Tweets authorImage={e.UserImage} author={e.postedBy} Text={e.Text} LikedBy={e.LikedBy} unique={e._id} Image={e.image} ImageAmount={e.imageAmount} User_using={UserDetails.UserId} Likes={e.Likes} />
           )
           : null
         }

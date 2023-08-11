@@ -16,7 +16,8 @@ export async function POST(req,res){
             "Password" : hashed_password,
             "User_Name" : User_Name,
             "User_tag" : User_tag,
-            "Image":Image
+            "Image":Image,
+            "Notifications":[]
         })
         return NextResponse.json({
             message : 'success'

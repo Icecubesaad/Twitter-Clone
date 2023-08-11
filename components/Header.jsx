@@ -15,7 +15,7 @@ import { Cookies, useCookies } from "react-cookie";
 const Header = () => {
   const { push } = useRouter();
   const context = useContext(AppContext);
-  const { LoggedIn,setLoggedIn, UserDetails } = context;
+  const { LoggedIn,setLoggedIn, UserDetails,setUserDetails } = context;
   const sidebar = () => {
     const sideBar_component = document.getElementById("sidebar");
     if (sideBar_component.classList.contains("active")) {
@@ -26,6 +26,15 @@ const Header = () => {
   };
   const Logout_func = () => {
     try {
+      setUserDetails(
+        {
+          UserName : "",
+          UserTag : "",
+          UserId:"",
+          Image:"",
+          LikedList:""
+        }
+      )
         setLoggedIn(false)
       const cookie = new Cookies();
       cookie.remove("user");

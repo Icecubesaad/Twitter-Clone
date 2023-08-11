@@ -19,7 +19,8 @@ export async function POST(req,res){
             "postedBy":UserDetails.User_tag,
             "imageAmount":imageAmount,
             "Likes":0,
-            "UserImage":UserDetails.Image
+            "UserImage":UserDetails.Image,
+            "LikedBy" : []
         })
         return NextResponse.json({
             message : "SUCCESS"

@@ -1,5 +1,6 @@
 'use client'
 import React,{useEffect,useState,useRef} from 'react';
+import Spinner from './Loading/Spinner';
 import ErrorException from './error/ErrorException';
 const UploadPhoto = ({change_image,loading_post}) => {
     const searchBoxRef = useRef(null);
