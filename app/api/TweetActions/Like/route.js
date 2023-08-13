@@ -11,6 +11,7 @@ export async function POST(req, res) {
     const Increase = { $inc: { Likes: 1 } };
     const decrease = { $inc: { Likes: -1 } };
     const Liked_by_user_details = await User_model.findOne({_id:payload.User_id})
+    const TweetDetail = await Tweet_model.findOne({_id : payload.id})
     if (payload.mode === "like") {
       console.log("liking it");
       try {
@@ -31,7 +32,7 @@ export async function POST(req, res) {
 
         await User_model.findOneAndUpdate(
           {User_tag : payload.author},
-          {$push : {Notifications : `${Liked_by_user_details.User_tag} Liked your tweet`}},
+          {$inc : {NewNotifications : 1}},
           {new:true}
         )
         return NextResponse.json({ message: "success" }, { status: 200 });

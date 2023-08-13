@@ -17,7 +17,7 @@ export async function POST(req,res){
             "User_Name" : User_Name,
             "User_tag" : User_tag,
             "Image":Image,
-            "Notifications":[]
+            "NewNotifications":0
         })
         return NextResponse.json({
             message : 'success'

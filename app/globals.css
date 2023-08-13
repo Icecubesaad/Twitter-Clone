@@ -48,6 +48,29 @@ body{
   transition: all 300ms;
   padding-top: 20px;
   animation: SideBar 300ms;
+  z-index: 999;
+}
+.sidebarNotify{
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 0px;
+  transition: all 300ms;
+  animation: SideBarNotifyClose 300ms;
+  display: none;
+  
+}
+.sidebarNotify.active{
+  display: flex;
+  width: 33%;
+  position: absolute;
+  right: 0;
+  top: 0;
+  align-items: start;
+  transition: all 300ms;
+  padding-top: 20px;
+  animation: SideBarNotify 300ms;
+  z-index: 99999;
 }
 @keyframes SideBar {
   from{
@@ -67,9 +90,32 @@ body{
     display: none;
   }
 }
+@keyframes SideBarNotify {
+  from{
+    width: 0px;
+  }
+  to{
+    width: 33%;
+  }
+}
+@keyframes SideBarNotifyClose{
+  from{
+    width: 33%;
+    display: flex;
+  }
+  to{
+    width: 0px;
+    display: none;
+  }
+}
 #closebtn{
   position: absolute;
   right: 0;
+}
+#closebtnNotify{
+  display: flex;
+  justify-content: right;
+  width: 100%;
 }
 /* Hide the vertical scrollbar */
 .element-with-scrollbar::-webkit-scrollbar {

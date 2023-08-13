@@ -4,18 +4,27 @@ import { useState } from "react";
 import Image from "next/image";
 import EmailIcon from "@mui/icons-material/Email";
 import NotificationsIcon from "@mui/icons-material/Notifications";
-import MenuIcon from "@mui/icons-material/Menu";
-import CloseIcon from "@mui/icons-material/Close";
+
 import { useContext } from "react";
 import AppContext from "@/app/context/AppContext";
 import Spinner from "./Loading/Spinner";
 import { ExitToApp, Logout } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
 import { Cookies, useCookies } from "react-cookie";
+import { Badge } from "@mui/material";
+import Sidebar from "./others/Sidebar";
+import SideBarNotifications from "./others/sideBarNotifications";
+import gettingNotifications from "@/hooks/GettingNotifications";
 const Header = () => {
   const { push } = useRouter();
   const context = useContext(AppContext);
-  const { LoggedIn,setLoggedIn, UserDetails,setUserDetails } = context;
+  const { LoggedIn,setLoggedIn, UserDetails,setUserDetails, NotificationList,setNotificationList } = context;
+  const [length, setlength] = useState(UserDetails.Notifications);
+  useEffect(() => {
+    if(UserDetails.Notifications){
+      setlength(UserDetails.Notifications)
+    }
+  }, [UserDetails.Notifications]);
   const sidebar = () => {
     const sideBar_component = document.getElementById("sidebar");
     if (sideBar_component.classList.contains("active")) {
@@ -24,6 +33,26 @@ const Header = () => {
       sideBar_component.classList.add("active");
     }
   };
+  const sidebarNotify = async() => {
+    const sideBar_component = document.getElementById("sidebarNotify");
+    if (sideBar_component.classList.contains("active")) {
+      sideBar_component.classList.remove("active");
+    } else {
+      sideBar_component.classList.add("active");
+    }
+    if(NotificationList && NotificationList.length==0){
+      const response = await gettingNotifications(UserDetails.UserId,"/api/TweetActions/Notifications/GET")
+      if(response){
+        setNotificationList(response[0].Notifications)
+        const response2 = await gettingNotifications(UserDetails.UserId,"/api/TweetActions/Notifications/Reset")
+      }
+
+    }
+    // UserDetails.Notifications = []
+  };
+  useEffect(() => {
+    console.log(NotificationList)
+  }, [NotificationList]);
   const Logout_func = () => {
     try {
       setUserDetails(
@@ -64,9 +93,11 @@ const Header = () => {
           <div>
             <EmailIcon sx={{ color: "white", fontSize: 30 }} />
           </div>
-          <div>
+          <button onClick={sidebarNotify}>
+          <Badge badgeContent={UserDetails.Notifications>0 ? length : null} color="primary">
             <NotificationsIcon sx={{ color: "white", fontSize: 30 }} />
-          </div>
+          </Badge>
+          </button>
           <div
             className="h-10 flex background_of_sub_component flex-row border-white border w-auto pr-3 items-center "
             style={{ borderRadius: 50 }}
@@ -78,20 +109,8 @@ const Header = () => {
               {UserDetails.UserName === "" ? <Spinner /> : UserDetails.UserName}
             </div>
           </div>
-          <div className="mr-2">
-            <div id="sidebar" className="SideBar h-screen bg-slate-500">
-              <button id="closebtn" onClick={sidebar}>
-                <CloseIcon sx={{ fontSize: 40 }} />
-              </button>
-              <button className=" mt-3" onClick={Logout_func}>
-                <ExitToApp sx={{ fontSize: 40 }} />
-                Logout
-              </button>
-            </div>
-            <button onClick={sidebar}>
-              <MenuIcon sx={{ color: "white", fontSize: 30 }} />
-            </button>
-          </div>
+          <Sidebar Logout_func={Logout_func} sidebar={sidebar} />
+          <SideBarNotifications sidebarNotify={sidebarNotify} />
         </div>
       ) : (
         <div className="w-2/5 h-14"></div>

@@ -43,6 +43,9 @@ const UserSchema = new Schema({
     Total_tweets:{
         type:Number
     },
+    NewNotifications:{
+        type:Number
+    },
     Notifications:{
         type:Array
     }

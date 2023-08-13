@@ -7,7 +7,7 @@ export async function POST(req,res){
     await dbConnect()
     const data = await req.json()
     const response = await middleware(data)
-    const user_info = await User_model.findOne({_id : response.id})
+    const user_info = await User_model.findOne({_id : response.id},{Notifications:0})
     return NextResponse.json({
         message : user_info,
     },

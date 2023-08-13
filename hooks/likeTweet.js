@@ -1,8 +1,8 @@
-const like_tweet = async(id,mode,User_id,author)=>{
+const like_tweet = async(id,mode,User_id,author,path)=>{
     if(!User_id){
         return
     }
-    const response = await fetch("/api/TweetActions/Like",{
+    const response = await fetch(path,{
         method:"POST",
         body:JSON.stringify({
             id:id,
@@ -11,7 +11,6 @@ const like_tweet = async(id,mode,User_id,author)=>{
             author:author
         })
     })
-    const response_back = await response.json()
-    console.log(response_back)
+    return response
 }
 module.exports = like_tweet

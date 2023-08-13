@@ -169,7 +169,7 @@ export default function Home() {
       UserId : User_data.message._id,
       Image:User_data.message.Image,
       LikedList : User_data.message.Like_list,
-      Notifications : User_data.message.Notifications
+      Notifications : User_data.message.NewNotifications
     });
   };
 
