@@ -16,7 +16,7 @@ const SideBarNotifications = ({sidebarNotify}) => {
               </button>
               <div className=' flex flex-col w-full'>
               {
-                NotificationList ? NotificationList.map((e)=><NotificationsLike Name={e.name} image={e.image} Text={e.Tweet} />) : <div><Spinner/></div>
+                NotificationList ? NotificationList.length > 0 ? NotificationList.map((e)=><NotificationsLike Name={e.name} image={e.image} Text={e.Tweet} />) : <div className=' h-full w-full flex items-center justify-center'><Spinner/></div> : <div>nothing to see here folk</div>
               }
               </div>
         </div>

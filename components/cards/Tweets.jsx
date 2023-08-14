@@ -36,12 +36,11 @@ const Tweets = ({ Text, Image, unique, ImageAmount,author,authorImage,LikedBy,Li
     }
   }, [UserDetails.UserId]);
   const like = async()=>{
+    setTweetLikes((e)=>e+1)
     const response = await like_tweet(unique,"like",UserId,author,"api/TweetActions/Like")
-    if(response.status === 200){
+    if(response && response.status === 200){
       const response2 = await like_tweet(unique,"like",UserId,author,"api/TweetActions/Notifications/POST")
     }
-    console.log(response)
-    setTweetLikes((e)=>e+1)
   }
   const dislike = ()=>{
   

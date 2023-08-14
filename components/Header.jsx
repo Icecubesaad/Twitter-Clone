@@ -18,11 +18,18 @@ import gettingNotifications from "@/hooks/GettingNotifications";
 const Header = () => {
   const { push } = useRouter();
   const context = useContext(AppContext);
-  const { LoggedIn,setLoggedIn, UserDetails,setUserDetails, NotificationList,setNotificationList } = context;
+  const {
+    LoggedIn,
+    setLoggedIn,
+    UserDetails,
+    setUserDetails,
+    NotificationList,
+    setNotificationList,
+  } = context;
   const [length, setlength] = useState(UserDetails.Notifications);
   useEffect(() => {
-    if(UserDetails.Notifications){
-      setlength(UserDetails.Notifications)
+    if (UserDetails.Notifications) {
+      setlength(UserDetails.Notifications);
     }
   }, [UserDetails.Notifications]);
   const sidebar = () => {
@@ -33,42 +40,49 @@ const Header = () => {
       sideBar_component.classList.add("active");
     }
   };
-  const sidebarNotify = async() => {
+  const sidebarNotify = async () => {
     const sideBar_component = document.getElementById("sidebarNotify");
     if (sideBar_component.classList.contains("active")) {
       sideBar_component.classList.remove("active");
     } else {
       sideBar_component.classList.add("active");
     }
-    if(NotificationList && NotificationList.length==0){
-      const response = await gettingNotifications(UserDetails.UserId,"/api/TweetActions/Notifications/GET")
-      if(response){
-        setNotificationList(response[0].Notifications)
-        const response2 = await gettingNotifications(UserDetails.UserId,"/api/TweetActions/Notifications/Reset")
+    if ((NotificationList && NotificationList.length==0) || UserDetails.Notifications > 0) {
+      const response = await gettingNotifications(
+        UserDetails.UserId,
+        "/api/TweetActions/Notifications/GET"
+      );
+      if (response) {
+        console.log(response)
+        setNotificationList(response);
+        const response2 = await gettingNotifications(
+          UserDetails.UserId,
+          "/api/TweetActions/Notifications/Reset"
+        );
+        setUserDetails({
+          ...UserDetails,Notifications : 0
+        })
       }
-
     }
     // UserDetails.Notifications = []
   };
   useEffect(() => {
-    console.log(NotificationList)
+    console.log(NotificationList);
   }, [NotificationList]);
   const Logout_func = () => {
     try {
-      setUserDetails(
-        {
-          UserName : "",
-          UserTag : "",
-          UserId:"",
-          Image:"",
-          LikedList:""
-        }
-      )
-        setLoggedIn(false)
+      setUserDetails({
+        UserName: "",
+        UserTag: "",
+        UserId: "",
+        Image: "",
+        LikedList: "",
+      });
+      setNotificationList([]);
+      setLoggedIn(false);
       const cookie = new Cookies();
       cookie.remove("user");
       push("/Login");
-      
     } catch (error) {
       console.log(error);
     }
@@ -94,16 +108,26 @@ const Header = () => {
             <EmailIcon sx={{ color: "white", fontSize: 30 }} />
           </div>
           <button onClick={sidebarNotify}>
-          <Badge badgeContent={UserDetails.Notifications>0 ? length : null} color="primary">
-            <NotificationsIcon sx={{ color: "white", fontSize: 30 }} />
-          </Badge>
+            <Badge
+              badgeContent={UserDetails.Notifications > 0 ? length : null}
+              color="primary"
+            >
+              <NotificationsIcon sx={{ color: "white", fontSize: 30 }} />
+            </Badge>
           </button>
           <div
             className="h-10 flex background_of_sub_component flex-row border-white border w-auto pr-3 items-center "
             style={{ borderRadius: 50 }}
           >
             <div className="w-10 border1 border-white bg-white rounded-full h-10">
-            {UserDetails.Image ? <img src={UserDetails.Image} className=' h-full w-full border-1 background_of_sub_component rounded-full' />:<Spinner/>}
+              {UserDetails.Image ? (
+                <img
+                  src={UserDetails.Image}
+                  className=" h-full w-full border-1 background_of_sub_component rounded-full"
+                />
+              ) : (
+                <Spinner />
+              )}
             </div>
             <div className="text-white text-sm ml-2 flex justify-center items-center">
               {UserDetails.UserName === "" ? <Spinner /> : UserDetails.UserName}

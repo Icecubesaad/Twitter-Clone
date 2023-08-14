@@ -10,8 +10,6 @@ export async function POST(req, res) {
     console.log(payload);
     const Increase = { $inc: { Likes: 1 } };
     const decrease = { $inc: { Likes: -1 } };
-    const Liked_by_user_details = await User_model.findOne({_id:payload.User_id})
-    const TweetDetail = await Tweet_model.findOne({_id : payload.id})
     if (payload.mode === "like") {
       console.log("liking it");
       try {

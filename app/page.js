@@ -1,7 +1,6 @@
 "use client";
 import LeftSidebar from "@/components/LeftSidebar";
 import RightSidebar from "@/components/RightSidebar";
-import Image from "next/image";
 import InsertPhotoIcon from "@mui/icons-material/InsertPhoto";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
@@ -15,10 +14,8 @@ import Server_call from "@/hooks/PostRequest";
 import Get_server_call from "@/hooks/GetRequest";
 import { useState } from "react";
 import { Send } from "@mui/icons-material";
-import Tweet_call from "@/hooks/Tweet";
 import Spinner from "@/components/Loading/Spinner";
 import checkLikes from "@/hooks/checkLikes";
-import { set } from "mongoose";
 export default function Home() {
   const {push} = useRouter()
   const [loadingPost, setloadingPost] = useState(false);

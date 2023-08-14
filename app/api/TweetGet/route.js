@@ -1,10 +1,8 @@
 import Tweet_model from "@/server/models/Tweet";
 import dbConnect from "@/server/utils/database";
-import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 
 export async function GET(req,res){
-    console.log(req.url)
     const url = new URL(req.url)
     const limit = url.searchParams.get("limit")
     const skip = url.searchParams.get("skip")
