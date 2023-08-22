@@ -1,6 +1,5 @@
 import mongoose,{Schema} from "mongoose";
-import { stringify } from "postcss";
-const Tweet = new Schema({
+const Tweet_comment = new Schema({
     Text:{
         type : String,
         require : true
@@ -29,7 +28,10 @@ const Tweet = new Schema({
     },
     LikedBy:{
         type:Array
+    },
+    OriginalTweet:{
+        type:String
     }
 })
-const Tweet_model = mongoose.models.tweet || mongoose.model('tweet',Tweet)
-export default Tweet_model
+const Tweet_comments_model = mongoose.models.comment || mongoose.model('comment',Tweet_comment)
+export default Tweet_comments_model

@@ -9,6 +9,7 @@ const middleware = async(token)=>{
 try {
 const verify = await jwt.verify(token,process.env.SECRET)
 if(verify){
+    console.log("verified")
         let User = verify.ID
         return User
     }

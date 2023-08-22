@@ -17,8 +17,10 @@ const AppState = ({ children }) => {
     const [LikedList, setLikedList] = useState([]);
     const [Total_Documents,SetTotal_Documents]=useState(0);
     const [TweetsState, setTweetsState] = useState([]);
+    const [SingleTweet, setSingleTweet] = useState([]);
+    const [comments,setcomments] = useState([])
     return (
-      <AppContext.Provider value={{NotificationList,setNotificationList,LikedList, setLikedList, Total_Documents,SetTotal_Documents,TweetsState,setTweetsState,LoggedIn, setLoggedIn, Auth_Crededentials, setAuth_Crededentials, UserDetails, setUserDetails }}>
+      <AppContext.Provider value={{NotificationList,setNotificationList,LikedList, setLikedList, Total_Documents,SetTotal_Documents,TweetsState,setTweetsState,LoggedIn, setLoggedIn, Auth_Crededentials, setAuth_Crededentials, UserDetails, setUserDetails,SingleTweet,setSingleTweet, comments,setcomments}}>
         {children}
       </AppContext.Provider>
     );

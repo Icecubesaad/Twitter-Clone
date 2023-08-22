@@ -10,12 +10,27 @@ import { useContext } from "react";
 import AppContext from "@/app/context/AppContext";
 import like_tweet from "@/hooks/likeTweet";
 import { ThumbUp, ThumbsUpDown } from "@mui/icons-material";
+import CommentBox from "../CommentBox";
+import Link from "next/link";
 const Tweets = ({ Text, Image, unique, ImageAmount,author,authorImage,LikedBy,Likes }) => {
   const [TweetLikes, setTweetLikes] = useState(Likes);
   const [liked, setliked] = useState(false);
   const context = useContext(AppContext)
   const {UserDetails} = context
   const [UserId, setUserId] = useState(null);
+  const [open, setOpen] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+
+
+
+
   useEffect(() => {
     if(UserId){
       return
@@ -166,7 +181,9 @@ const Tweets = ({ Text, Image, unique, ImageAmount,author,authorImage,LikedBy,Li
     }
   }, []);
   return (
+    
     <div className="w-full flex flex-col items-center mr-1 mt-2" key={unique}>
+      <Link href={`/tweet/${unique}`} className="w-full">
       <div
         className="h background_of_sub_component text-white h-auto pb-5 flex flex-col rounded-xl"
         style={{ width: "98%" }}
@@ -245,42 +262,39 @@ const Tweets = ({ Text, Image, unique, ImageAmount,author,authorImage,LikedBy,Li
           <div className=" h-7 w-7 border-1 rounded-full bg-blue-700 flex items-center justify-center"><ThumbUp sx={{ fontSize: 20 }}/></div>
           <div>{TweetLikes}</div>
         </div>
-        <div className="flex flex-row gap-5 ml-20">
+        <div className="flex flex-row gap-5 ml-4 mt-4 mr-4">
         {(LikedBy.includes(UserDetails.UserId) && liked) || liked
         ? 
         <div
         style={{ transition: "all 300ms" }}
-        className="w cursor-pointer w-auto pl-4 pr-4 flex flex-row items-center gap-1 text-white h-12 border-1 pt-4 hover:bg-slate-500 background_of_sub_component_contrast pb-4 rounded-lg"
+        className="w cursor-pointer w-1/3 pl-6 pr-6 flex flex-row justify-center items-center gap-1 text-white h-12 border-1 pt-4 hover:bg-slate-500 background_of_sub_component_contrast pb-4 rounded-lg"
         onClick={()=>{dislike(),setliked(false)}}
       ><FavoriteIcon sx={{color:"red"}}/> Liked</div>
               : 
           <div
             style={{ transition: "all 300ms" }}
-            className="w cursor-pointer w-auto pl-4 pr-4 flex flex-row items-center gap-1 text-white h-12 border-1 pt-4 hover:bg-slate-500 background_of_sub_component_contrast pb-4 rounded-lg"
+            className="w cursor-pointer w-1/3 pl-6 pr-6 flex flex-row justify-center items-center gap-1 text-white h-12 border-1 pt-4 hover:bg-slate-500 background_of_sub_component_contrast pb-4 rounded-lg"
             onClick={()=>{like(),setliked(true)}}
           >
               <FavoriteIcon /> like </div> 
               }
           <div
             style={{ transition: "all 300ms" }}
-            className="w cursor-pointer w-auto pl-4 pr-4 flex flex-row items-center gap-1 text-white h-12 border-1 pt-4 hover:bg-slate-500 background_of_sub_component_contrast pb-4  rounded-lg"
+            className="w cursor-pointer w-1/3 pl-4 pr-4 flex justify-center  flex-row items-center gap-1 text-white h-12 border-1 pt-4 hover:bg-slate-500 background_of_sub_component_contrast pb-4  rounded-lg"
           >
             <AutorenewIcon /> retweet
           </div>
           <div
             style={{ transition: "all 300ms" }}
-            className="w cursor-pointer w-auto pl-4 pr-4 flex flex-row items-center gap-1 text-white h-12 border-1 pt-4 hover:bg-slate-500 background_of_sub_component_contrast pb-4  rounded-lg"
+            onClick={handleClickOpen}
+            className="w cursor-pointer w-1/3 pl-4 pr-4 flex justify-center  flex-row items-center gap-1 text-white h-12 border-1 pt-4 hover:bg-slate-500 background_of_sub_component_contrast pb-4  rounded-lg"
           >
             <ReplyIcon /> reply
           </div>
-          <div
-            style={{ transition: "all 300ms" }}
-            className="w cursor-pointer w-auto pl-4 pr-4 flex flex-row items-center gap-1 text-white h-12 border-1 pt-4 hover:bg-slate-500 background_of_sub_component_contrast pb-4 rounded-lg"
-          >
-            <BrushIcon /> quote
-          </div>
+          <CommentBox open={open} accountName={author} AccountPic={authorImage} TweetText={Text} User={UserDetails.UserTag} TweetId={unique} UserPic={UserDetails.Image} UserId={UserDetails.UserId} handleClose={handleClose} />
         </div>
       </div>
+      </Link>
     </div>
   );
 };
