@@ -29,6 +29,9 @@ const Tweet = new Schema({
     },
     LikedBy:{
         type:Array
+    },
+    Comments:{
+        type:Number
     }
 })
 const Tweet_model = mongoose.models.tweet || mongoose.model('tweet',Tweet)

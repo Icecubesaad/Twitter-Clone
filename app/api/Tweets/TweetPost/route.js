@@ -23,6 +23,7 @@ export async function POST(req, res) {
       Likes: 0, // Likes
       UserImage: UserDetails.Image, // Author images
       LikedBy: [], // liked by array to keep  record of likes
+      Comments:0  // Tweets total comments
     });
     return NextResponse.json(
       {

@@ -8,22 +8,25 @@ import BrushIcon from "@mui/icons-material/Brush";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { useContext } from "react";
 import AppContext from "@/app/context/AppContext";
-import like_tweet from "@/hooks/likeTweet";
+import like_tweet from "@/hooks/ActionCaller";
 import { ThumbUp, ThumbsUpDown } from "@mui/icons-material";
 import CommentBox from "../CommentBox";
 import Link from "next/link";
-const Tweets = ({ Text, Image, unique, ImageAmount,author,authorImage,LikedBy,Likes }) => {
+import ActionCaller from "@/hooks/ActionCaller";
+const Tweets = ({ Text, Image, unique, ImageAmount,author,authorImage,LikedBy,Likes,link,query,Comments }) => {
   const [TweetLikes, setTweetLikes] = useState(Likes);
   const [liked, setliked] = useState(false);
   const context = useContext(AppContext)
   const {UserDetails} = context
   const [UserId, setUserId] = useState(null);
   const [open, setOpen] = useState(false);
+  const [comments, setcomments] = useState(Comments);
 
   const handleClickOpen = () => {
     setOpen(true);
   };
   const handleClose = () => {
+    setcomments(e=>e+1)
     setOpen(false);
   };
 
@@ -52,16 +55,14 @@ const Tweets = ({ Text, Image, unique, ImageAmount,author,authorImage,LikedBy,Li
   }, [UserDetails.UserId]);
   const like = async()=>{
     setTweetLikes((e)=>e+1)
-    const response = await like_tweet(unique,"like",UserId,author,"api/TweetActions/Like")
+    const response = await ActionCaller(unique,"like",UserId,author,`/api/Tweets/TweetActions/Like?t=${query}`)
     if(response && response.status === 200){
-      const response2 = await like_tweet(unique,"like",UserId,author,"api/TweetActions/Notifications/POST")
+      const response2 = await ActionCaller(unique,"like",UserId,author,`/api/Tweets/TweetActions/Notifications/POST?t=${query}`)
     }
   }
   const dislike = ()=>{
-  
-    like_tweet(unique,"dislike",UserId)
+    ActionCaller(unique,"dislike",UserId,author,`/api/Tweets/TweetActions/Like?t=${query}`)
     setTweetLikes((e)=>e-1)
-
   }
   const getUserId = ()=>{
     setUserId(UserDetails.UserId)
@@ -183,11 +184,11 @@ const Tweets = ({ Text, Image, unique, ImageAmount,author,authorImage,LikedBy,Li
   return (
     
     <div className="w-full flex flex-col items-center mr-1 mt-2" key={unique}>
-      <Link href={`/tweet/${unique}`} className="w-full">
       <div
         className="h background_of_sub_component text-white h-auto pb-5 flex flex-col rounded-xl"
         style={{ width: "98%" }}
       >
+      <Link href={{ pathname : `${link+unique}`, query:{'t':query}}} className="w-full">
         <div
           id="tweet_area"
           className="h-auto w-full ml-4 flex flex-col gap-4 pt-2 pb-3"
@@ -258,10 +259,16 @@ const Tweets = ({ Text, Image, unique, ImageAmount,author,authorImage,LikedBy,Li
             </div>
           ) : null}
         </div>:null}
+        <div className=" flex flex-row justify-between w-full">
         <div className=" ml-5 flex flex-row gap-2">
           <div className=" h-7 w-7 border-1 rounded-full bg-blue-700 flex items-center justify-center"><ThumbUp sx={{ fontSize: 20 }}/></div>
           <div>{TweetLikes}</div>
         </div>
+        <div className=" mr-3 text-white">
+                {comments} comments
+        </div>
+        </div>
+          </Link>
         <div className="flex flex-row gap-5 ml-4 mt-4 mr-4">
         {(LikedBy.includes(UserDetails.UserId) && liked) || liked
         ? 
@@ -270,12 +277,12 @@ const Tweets = ({ Text, Image, unique, ImageAmount,author,authorImage,LikedBy,Li
         className="w cursor-pointer w-1/3 pl-6 pr-6 flex flex-row justify-center items-center gap-1 text-white h-12 border-1 pt-4 hover:bg-slate-500 background_of_sub_component_contrast pb-4 rounded-lg"
         onClick={()=>{dislike(),setliked(false)}}
       ><FavoriteIcon sx={{color:"red"}}/> Liked</div>
-              : 
-          <div
-            style={{ transition: "all 300ms" }}
-            className="w cursor-pointer w-1/3 pl-6 pr-6 flex flex-row justify-center items-center gap-1 text-white h-12 border-1 pt-4 hover:bg-slate-500 background_of_sub_component_contrast pb-4 rounded-lg"
-            onClick={()=>{like(),setliked(true)}}
-          >
+      : 
+      <div
+      style={{ transition: "all 300ms" }}
+      className="w cursor-pointer w-1/3 pl-6 pr-6 flex flex-row justify-center items-center gap-1 text-white h-12 border-1 pt-4 hover:bg-slate-500 background_of_sub_component_contrast pb-4 rounded-lg"
+      onClick={()=>{like(),setliked(true)}}
+      >
               <FavoriteIcon /> like </div> 
               }
           <div
@@ -294,7 +301,6 @@ const Tweets = ({ Text, Image, unique, ImageAmount,author,authorImage,LikedBy,Li
           <CommentBox open={open} accountName={author} AccountPic={authorImage} TweetText={Text} User={UserDetails.UserTag} TweetId={unique} UserPic={UserDetails.Image} UserId={UserDetails.UserId} handleClose={handleClose} />
         </div>
       </div>
-      </Link>
     </div>
   );
 };

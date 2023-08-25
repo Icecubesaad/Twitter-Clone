@@ -50,14 +50,14 @@ const Header = () => {
     if ((NotificationList && NotificationList.length==0) || UserDetails.Notifications > 0) {
       const response = await gettingNotifications(
         UserDetails.UserId,
-        "/api/TweetActions/Notifications/GET"
+        "/api/Tweets/TweetActions/Notifications/GET"
       );
       if (response) {
         console.log(response)
         setNotificationList(response);
         const response2 = await gettingNotifications(
           UserDetails.UserId,
-          "/api/TweetActions/Notifications/Reset"
+          "/api/Tweets/TweetActions/Notifications/Reset"
         );
         setUserDetails({
           ...UserDetails,Notifications : 0

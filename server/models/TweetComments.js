@@ -31,6 +31,9 @@ const Tweet_comment = new Schema({
     },
     OriginalTweet:{
         type:String
+    },
+    Comments:{
+        type:Number
     }
 })
 const Tweet_comments_model = mongoose.models.comment || mongoose.model('comment',Tweet_comment)

@@ -18,9 +18,9 @@ const MainPageTweets = () => {
     const [loadingPost, setloadingPost] = useState(false);
   const [hasMore, sethasMore] = useState(true);
   const [fetching, setfetching] = useState(false);
-  const [limit, setlimit] = useState(3);
   const [DocumentLeft, setDocumentLeft] = useState(null);
   const [loading, setloading] = useState(true);
+  const [limit, setlimit] = useState(3);
   const [media, setmedia] = useState([]);
   const [option, setoption] = useState(false);
   const context = useContext(AppContext);
@@ -192,7 +192,7 @@ const MainPageTweets = () => {
 
   const PostTweet = async () => {
     setloadingPost(true)
-    const response = await Server_call("/api/TweetPost",Tweet,"POST");
+    const response = await Server_call("/api/Tweets/TweetPost",Tweet,"POST");
     const response_back = await response.json()
     if(response_back.message === 'SUCCESS'){
       setloadingPost(false)
@@ -213,7 +213,7 @@ const MainPageTweets = () => {
   const FetchNewData = async()=>{
     console.log("getting new document of limit : ",limit," documents left are : ",DocumentLeft)
     console.log("from fetched data : ",TweetsState)
-    const response = await Get_server_call(`/api/TweetGet?limit=${limit}&skip=${skip}`)
+    const response = await Get_server_call(`/api/Tweets/TweetGet?limit=${limit}&skip=${skip}`)
       const response_back = await response.json();
       if(response_back.message.data){
         setskip(e=>e+3)
@@ -230,7 +230,7 @@ const MainPageTweets = () => {
 
     const GetTweets = async(limit,skip)=>{
       console.log("inside a function : ",TweetsState)
-      const response = await Get_server_call(`/api/TweetGet?limit=${limit}&skip=${skip}`)
+      const response = await Get_server_call(`/api/Tweets/TweetGet?limit=${limit}&skip=${skip}`)
       const response_back = await response.json();
       if(response_back.message.data){
         setskip(e=>e+3)
@@ -365,7 +365,7 @@ const MainPageTweets = () => {
         </div>:null}
         { TweetsState.length>0 ?
           TweetsState.map((e,index)=>
-            <Tweets authorImage={e.UserImage} author={e.postedBy} Text={e.Text} LikedBy={e.LikedBy} unique={e._id} Image={e.image} ImageAmount={e.imageAmount} User_using={UserDetails.UserId} Likes={e.Likes} />
+            <Tweets authorImage={e.UserImage} author={e.postedBy} Text={e.Text} LikedBy={e.LikedBy} unique={e._id} Image={e.image} link={'/tweet/'} ImageAmount={e.imageAmount} User_using={UserDetails.UserId} Likes={e.Likes} query={'t'} Comments={e.Comments} />
           )
           : null
         }

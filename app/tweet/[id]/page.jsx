@@ -11,47 +11,81 @@ import ReplyIcon from "@mui/icons-material/Reply";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
 import BrushIcon from "@mui/icons-material/Brush";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import like_tweet from "@/hooks/likeTweet";
+import like_tweet from "@/hooks/ActionCaller";
 import { ThumbUp, ThumbsUpDown } from "@mui/icons-material";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Error from "next/error";
 import Spinner from "@/components/Loading/Spinner";
+import Get_server_call from "@/hooks/GetRequest";
 export default function Page() {
+  const searchparams = useSearchParams();
+  const router = useRouter();
   const path = usePathname();
   const [liked, setliked] = useState(false);
+  const [hasMore, sethasMore] = useState(true);
   const context = useContext(AppContext);
-  const { UserDetails, setSingleTweet, SingleTweet,setcomments,comments } = context;
+  const { UserDetails, setSingleTweet, SingleTweet, setcomments, comments } =
+    context;
   const [TweetLikes, setTweetLikes] = useState(SingleTweet.Likes);
+  const [commentsN, setcommentsN] = useState(SingleTweet.Comments);
   const id = path.split("/")[2];
   const [found, setfound] = useState(true);
   const [errorCode, seterrorCode] = useState("");
   const [fetching, setfetching] = useState(true);
-  const [DocumentsLeft, setDocumentsLeft] = useState(null);
-
+  const [DocumentLeft, setDocumentLeft] = useState(null);
+  const [limit, setlimit] = useState(3);
+  const [skip, setskip] = useState(0);
+  const [fetchPath, setfetchPath] = useState(null);
   useEffect(() => {
+    setcommentsN(SingleTweet.Comments)
+    setTweetLikes(SingleTweet.Likes)
+  }, [SingleTweet]);
+  useEffect(() => {
+    console.log(comments);
+  }, [comments]);
+  useEffect(() => {
+    const query = searchparams.get("t");
     if (SingleTweet && SingleTweet._id === id) {
       return;
     } else {
-      setSingleTweet({});
-      fetchTweet();
+      if (query === "c") {
+        setcomments([]);
+        setSingleTweet({});
+        setfetchPath("/api/Tweets/filteredTweet?t=c");
+        fetchTweet();
+      }
+      if (query === "t") {
+        setcomments([]);
+        setSingleTweet({});
+        setfetchPath("/api/Tweets/filteredTweet");
+      }
     }
   }, []);
+  useEffect(() => {
+    if (fetchPath && typeof fetchPath === "string") {
+      fetchTweet();
+    }
+  }, [fetchPath]);
   const fetchTweet = async () => {
-    const response = await Server_call("/api/filteredTweet", id, "POST");
-    if(response.status === 200 || response){
-      const data = await response.json();
-      console.log(data.message);
-      setSingleTweet(data.message);
-      setfound(true)
-      setfetching(false)
-    }
-    else if(response.status===404){
-      setfound(false)
-      seterrorCode(404)
-    }
-    else if(response.status===400){
-      setfound(false)
-      seterrorCode(400)
+    if (fetchPath) {
+      const response = await Server_call(fetchPath, id, "POST");
+      if (response.status === 200 || response) {
+        GetComments(limit, skip);
+        const data = await response.json();
+        console.log(data.message);
+        setSingleTweet(data.message);
+        setfound(true);
+        setfetching(false);
+        setDocumentLeft(data.message.Comments);
+      } else if (response.status === 404) {
+        setfound(false);
+        seterrorCode(404);
+      } else if (response.status === 400) {
+        setfound(false);
+        seterrorCode(400);
+      }
     }
   };
   const like = async () => {
@@ -61,7 +95,7 @@ export default function Page() {
       "like",
       UserId,
       author,
-      "api/TweetActions/Like"
+      "api/Tweets/TweetActions/Like"
     );
     if (response && response.status === 200) {
       const response2 = await like_tweet(
@@ -69,7 +103,7 @@ export default function Page() {
         "like",
         UserId,
         author,
-        "api/TweetActions/Notifications/POST"
+        "api/Tweets/TweetActions/Notifications/POST"
       );
     }
   };
@@ -176,74 +210,69 @@ export default function Page() {
     }
   }, []);
 
-
   // getting commets
-  const FetchNewData = async()=>{
-    console.log("getting new document of limit : ",limit," documents left are : ",DocumentLeft)
-    console.log("from fetched data : ",comments)
-    const response = await Get_server_call(`/api/TweetGet?limit=${limit}&skip=${skip}`)
-      const response_back = await response.json();
-      if(response_back.message.data){
-        setskip(e=>e+3)
-        setDocumentLeft(response_back.message.DocumentsLeft)
-        console.log("Document Left : ",response_back.message.DocumentLeft)
-        console.log(typeof(response_back.message.data))     // object
-        console.log("raw : ",response_back.message.data)
-        setcomments([...comments,...response_back.message.data])
-        setfetching(true)
-      }
-  }
+  const FetchNewData = async () => {
+    console.log(
+      "getting new document of limit : ",
+      limit,
+      " documents left are : ",
+      DocumentLeft
+    );
+    console.log("from fetched data : ", comments);
+    const response = await Get_server_call(
+      `/api/Tweets/TweetActions/comments/GET?limit=${limit}&skip=${skip}&id=${id}`
+    );
+    const response_back = await response.json();
+    if (response_back.message.data) {
+      setDocumentLeft((e) => e - skip);
+      setskip((e) => e + 3);
+      console.log("Document Left : ", response_back.message.DocumentLeft);
+      console.log(typeof response_back.message.data); // object
+      console.log("raw : ", response_back.message.data);
+      setcomments([...comments, ...response_back.message.data]);
+      setfetching(true);
+    }
+  };
 
   // getting tweets from Database
 
-    const GetComments = async(limit,skip)=>{
-      console.log("inside a function : ",comments)
-      const response = await Get_server_call(`/api/TweetGet?limit=${limit}&skip=${skip}`)
-      const response_back = await response.json();
-      if(response_back.message.data){
-        setskip(e=>e+3)
-        console.log("fetched the initial data")
-        setDocumentLeft(response_back.message.DocumentsLeft)
-        console.log("Documents Requested: ",limit," Documents Left : ",response_back.message.DocumentsLeft)
-        setcomments([...response_back.message.data])
-        setfetching(true)
-      }
-      return response_back
+  const GetComments = async (limit, skip) => {
+    console.log("inside a function : ", comments);
+    const response = await Get_server_call(
+      `/api/Tweets/TweetActions/comments/GET?limit=${limit}&skip=${skip}&id=${id}`
+    );
+    const response_back = await response.json();
+    if (response_back.message.data) {
+      setDocumentLeft((e) => e - skip);
+      setskip((e) => e + 3);
+      console.log("fetched the initial data");
+      console.log(
+        "Documents Requested: ",
+        limit,
+        " Documents Left : ",
+        response_back.message.DocumentsLeft
+      );
+      setcomments([...response_back.message.data]);
+      setfetching(true);
     }
+    return response_back;
+  };
 
+  useEffect(() => {
+    console.log("TRIGGEREd");
+    console.log(DocumentLeft);
+    if (DocumentLeft <= 0 && DocumentLeft != null) {
+      console.log("All the data has been fetched");
+      sethasMore(false);
+    }
+    if (DocumentLeft > 0 && fetching && DocumentLeft != null) {
+      console.log("FETCHING NEW DATa");
+      FetchNewData();
+    }
+  }, [DocumentLeft]);
 
-
-    useEffect(() => {
-      console.log("TRIGGEREd")
-      console.log(DocumentLeft)
-      if(DocumentLeft<5 && DocumentLeft>0 && DocumentLeft!=null){
-        setlimit(DocumentLeft)
-      }
-      if(DocumentLeft<=0  && DocumentLeft!=null){
-        console.log("All the data has been fetched")
-        sethasMore(false)
-      }
-      if(DocumentLeft>0 && fetching && DocumentLeft!=null)
-      {
-        console.log("FETCHING NEW DATa")
-        FetchNewData()
-      }
-    }, [DocumentLeft]);
-
-
-
-
-
-
-
-
-
-
-
-
-
-  if(!found){
-    return <Error statusCode={errorCode} />
+  if (!found) {
+    return <Error statusCode={errorCode} />;
   }
   return (
     <div className="element-with-scrollbar w-2/4 flex flex-col gap-2 items-center mr-5">
@@ -292,18 +321,19 @@ export default function Page() {
           </p>
         ) : (
           <div className="pl-3">
-          <Skeleton
-            animation="wave"
-            variant="rectangular"
-            width={500}
-            height={70}
-          />
+            <Skeleton
+              animation="wave"
+              variant="rectangular"
+              width={500}
+              height={70}
+            />
           </div>
         )}
         <div>
           {SingleTweet &&
           SingleTweet.image &&
-          SingleTweet.image[0] !== "null" ? (
+          SingleTweet.image[0] !== "null" &&
+          SingleTweet.imageAmount > 0 ? (
             <div
               className=" flex item-center justify-center pb-3 ml-10"
               style={ImageGrid.main}
@@ -443,11 +473,14 @@ export default function Page() {
             </div>
           ) : null}
         </div>
-        <div className=" ml-5 flex flex-row gap-2 pt-2">
-          <div className=" h-7 w-7 border-1 rounded-full bg-blue-700 flex items-center justify-center">
-            <ThumbUp sx={{ fontSize: 20, color: "white" }} />
-          </div>
-          <div className="text-white">{SingleTweet.Likes}</div>
+        <div className=" flex flex-row justify-between w-full m-3">
+        <div className=" flex flex-row gap-2">
+          <div className=" h-7 w-7 border-1 rounded-full bg-blue-700 flex items-center justify-center"><ThumbUp sx={{ fontSize: 20,color:"white" }}/></div>
+          <div className="text-white">{TweetLikes}</div>
+        </div>
+        <div className="mr-3 pr-3 text-white">
+                {commentsN} comments
+        </div>
         </div>
         <div className="flex flex-row gap-5 ml-4 mt-4 mr-4">
           {(SingleTweet.LikedBy &&
@@ -487,23 +520,32 @@ export default function Page() {
             <ReplyIcon /> reply
           </div>
           {/* <CommentBox open={open} accountName={author} AccountPic={authorImage} TweetText={Text} User={UserDetails.UserTag} TweetId={unique} UserPic={UserDetails.Image} UserId={UserDetails.UserId} handleClose={handleClose} /> */}
-              
         </div>
       </div>
-      {
-        comments && comments.length > 0 ? 
-        <div>
-          {
-            comments.map((e,index)=>
-            <Tweets authorImage={e.UserImage} author={e.postedBy} Text={e.Text} LikedBy={e.LikedBy} unique={e._id} Image={e.image} ImageAmount={e.imageAmount} User_using={UserDetails.UserId} Likes={e.Likes}/>
-            )
-          }
+      {comments && comments.length > 0 ? (
+        <div className="w-full">
+          {comments.map((e, index) => (
+            <Tweets
+              authorImage={e.UserImage}
+              author={e.postedBy}
+              Text={e.Text}
+              LikedBy={e.LikedBy}
+              unique={e._id}
+              Image={e.image}
+              link={"/tweet/"}
+              query={"c"}
+              ImageAmount={e.imageAmount}
+              User_using={UserDetails.UserId}
+              Likes={e.Likes}
+              Comments={e.Comments}
+            />
+          ))}
         </div>
-        :
+      ) : (
         <div>
-          <Spinner/>
+          <Spinner />
         </div>
-      }
+      )}
     </div>
   );
 }

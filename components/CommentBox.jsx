@@ -16,21 +16,22 @@ import Server_call from '@/hooks/PostRequest';
 import Spinner from './Loading/Spinner';
 import AppContext from '@/app/context/AppContext';
 import { useContext } from 'react';
+import ActionCaller from '@/hooks/ActionCaller';
 const CommentBox = ({handleClose,TweetId, open,accountName, User,TweetText,AccountPic,UserPic,UserId}) => {
-  const context = useContext(AppContext)
-  const {UserDetails} = context
+
     const searchBoxRef = useRef(null);
     const fileInputRef = useRef(null);
     const [media, setmedia] = useState([]);
     const [option, setoption] = useState(false);
     const [loading, setloading] = useState(false);
+    console.log(User,UserId)
     const [Tweet, setTweet] = useState({
         Text: "",
-        User_id : UserDetails.UserId,
+        User_id : UserId,
         Image: ["null"],
         OriginalTweet : TweetId,
-        UserTag:UserDetails.UserTag,
-        UserImage:UserDetails.Image
+        UserTag:User,
+        UserImage:UserPic
       });
 
 
@@ -100,16 +101,19 @@ const CommentBox = ({handleClose,TweetId, open,accountName, User,TweetText,Accou
         e.target.style.height = 'auto';
         e.target.style.height = `${e.target.scrollHeight}px`;
       };
-
-
       // POSTING TWEET
       const PostTweet = async()=>{
         setloading(true)
-        const response = await Server_call("/api/comments/POST",Tweet,"POST")
+        const response = await Server_call("/api/Tweets/TweetActions/comments/POST",Tweet,"POST")
         if(response.status === 200){
+            const Response = await ActionCaller(TweetId,"c",UserId,accountName,"api/Tweets/TweetActions/comments/manipulation")
+            if(Response.status===200){
+              await ActionCaller(TweetId,"like",UserId,accountName,`/api/Tweets/TweetActions/Notifications/POST?t=c`,Tweet.Text)
+            }
             setloading(false)
             handleClose()
         }
+
       }
     return (
         <Dialog open={open} onClose={handleClose} className=" bg-transparent">

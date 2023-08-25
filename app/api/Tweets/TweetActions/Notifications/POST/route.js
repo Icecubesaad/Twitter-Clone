@@ -1,4 +1,5 @@
 import Tweet_model from "@/server/models/Tweet";
+import Tweet_comments_model from "@/server/models/TweetComments";
 import User_model from "@/server/models/UserSchema";
 import dbConnect from "@/server/utils/database";
 import { NextResponse } from "next/server";
@@ -8,7 +9,22 @@ export async function POST(req,res){
     try {
         await dbConnect();
         const payload = await req.json()
-        const TweetDetail = await Tweet_model.findOne({_id : payload.id})
+        console.log(payload)
+        const url = new URL(req.url)
+        const query = url.searchParams.get("t")
+        console.log(query)
+        let TweetDetail;
+        let action
+        TweetDetail = await Tweet_model.findOne({_id : payload.id})
+        if(!TweetDetail){
+                TweetDetail = await Tweet_model.fineOne({_id : payload.id})
+        }
+        if(query==="c"){
+            action = "c"
+        }
+        else{
+            action = "l"
+        }
         const Liked_by_user_details = await User_model.findOne({_id : payload.User_id})
         await User_model.findOneAndUpdate(
             {User_tag : payload.author},
@@ -18,6 +34,8 @@ export async function POST(req,res){
                     image: Liked_by_user_details.Image,
                     name: Liked_by_user_details.User_tag,
                     Tweet: TweetDetail.Text,
+                    About:action,
+                    content: payload.content
                 }
             }
             },

@@ -8,6 +8,7 @@ export async function POST(req, res) {
     console.log("posting reply")
     await dbConnect();
     const data = await req.json();
+    console.log("payload at POST comment : ",data)
     const { Text, User_id, Image,UserImage, OriginalTweet,UserTag } = data;
     const imageAmount = Image.length;
     await Tweet_comments_model.create({
@@ -20,6 +21,7 @@ export async function POST(req, res) {
       UserImage: UserImage, // Author images
       LikedBy: [], // liked by array to keep  record of likes
       OriginalTweet: OriginalTweet,
+      Comments:0  // comments on a reply
     });
     return NextResponse.json(
       {

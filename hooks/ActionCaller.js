@@ -1,4 +1,4 @@
-const like_tweet = async(id,mode,User_id,author,path)=>{
+const ActionCaller = async(id,mode,User_id,author,path,content)=>{
     if(!User_id){
         return
     }
@@ -8,9 +8,10 @@ const like_tweet = async(id,mode,User_id,author,path)=>{
             id:id,
             User_id:User_id,
             mode:mode,
-            author:author
+            author:author,
+            content : content
         })
     })
     return response
 }
-module.exports = like_tweet
+module.exports = ActionCaller
