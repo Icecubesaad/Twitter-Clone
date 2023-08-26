@@ -39,6 +39,7 @@ export async function POST(req,res){
                 }
             }
             },
+            { $inc: { NewNotifications: 1 } },
             {new : true}
         )
         return NextResponse.json({message : "Success"},{status:200})

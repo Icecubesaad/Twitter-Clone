@@ -13,6 +13,7 @@ import { ThumbUp, ThumbsUpDown } from "@mui/icons-material";
 import CommentBox from "../CommentBox";
 import Link from "next/link";
 import ActionCaller from "@/hooks/ActionCaller";
+import { followers } from "@/hooks";
 const Tweets = ({ Text, Image, unique, ImageAmount,author,authorImage,LikedBy,Likes,link,query,Comments }) => {
   const [TweetLikes, setTweetLikes] = useState(Likes);
   const [liked, setliked] = useState(false);
@@ -29,7 +30,6 @@ const Tweets = ({ Text, Image, unique, ImageAmount,author,authorImage,LikedBy,Li
     setcomments(e=>e+1)
     setOpen(false);
   };
-
 
 
 
@@ -193,14 +193,21 @@ const Tweets = ({ Text, Image, unique, ImageAmount,author,authorImage,LikedBy,Li
           id="tweet_area"
           className="h-auto w-full ml-4 flex flex-col gap-4 pt-2 pb-3"
         >
+          <div className="w-full flex  flex-row justify-between">
           <div className=" flex flex-row w-full gap-6 items-center">
           <div
-            className="w-1/12 bg-amber-100"
+            className="w-1/6 bg-amber-100"
             style={{ borderRadius: "40px",height:"53px" }}
           >
             {authorImage ? <img src={authorImage} style={ImageStyle.image} className=" border-1 rounded-full" /> : null}
           </div>
           <div>{author}</div>
+          </div>
+          <div className="w-full flex pr-6 items-center" style={{justifyContent:"right"}}>
+                <button className="background_of_sub_component_contrast text-white w-auto h-10 pr-4 pl-4 border-1 rounded-xl hover:bg-white hover:text-black">
+                  Follow
+                </button>
+          </div>
           </div>
           <div
             className="rounded-xl h-auto pb-3 text-lg"

@@ -106,7 +106,8 @@ const CommentBox = ({handleClose,TweetId, open,accountName, User,TweetText,Accou
         setloading(true)
         const response = await Server_call("/api/Tweets/TweetActions/comments/POST",Tweet,"POST")
         if(response.status === 200){
-            const Response = await ActionCaller(TweetId,"c",UserId,accountName,"api/Tweets/TweetActions/comments/manipulation")
+          console.log("increasing the number of  the comments")
+            const Response = await ActionCaller(TweetId,"c",UserId,accountName,"../api/Tweets/TweetActions/comments/manipulation",null)
             if(Response.status===200){
               await ActionCaller(TweetId,"like",UserId,accountName,`/api/Tweets/TweetActions/Notifications/POST?t=c`,Tweet.Text)
             }

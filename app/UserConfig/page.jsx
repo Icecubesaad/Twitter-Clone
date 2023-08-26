@@ -55,7 +55,7 @@ const UserName = () => {
         }
         try {
             if(Validation){
-                const response = await Server_call("/api/Signup",Auth_Crededentials, "POST")
+                const response = await Server_call("/api/Auth/Signup",Auth_Crededentials, "POST")
                 const response_back = await response.json();
                 if(response_back.message === "Account already exist"){
                     setValidation(false)

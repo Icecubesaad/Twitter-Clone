@@ -48,7 +48,7 @@ const Signup = () => {
         setValidation(true)
         try {
             if(Validation){
-                const response = await Server_call("/api/check/Signup",Crededetials,"POST")
+                const response = await Server_call("/api/Auth/check/Signup",Crededetials,"POST")
                 const response_back = await response.json();
                 console.log("RESPONSE BACK FROM SERVER AHHAHA : ",response_back)
                 if(response_back.message === "Already Exist"){

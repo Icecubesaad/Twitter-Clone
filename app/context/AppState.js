@@ -1,6 +1,7 @@
 'use client'
 import AppContext from "./AppContext";
 import React,{useState} from "react";
+import Server_call from "@/hooks/PostRequest";
 const AppState = ({ children }) => {
     // Define the state or any data you want to share using the context
     const [LoggedIn, setLoggedIn] = useState(false);
@@ -19,8 +20,25 @@ const AppState = ({ children }) => {
     const [TweetsState, setTweetsState] = useState([]);
     const [SingleTweet, setSingleTweet] = useState([]);
     const [comments,setcomments] = useState([])
+    const getDetails = async (data) => {
+    
+      const request = await Server_call(
+        "/api/Auth/getDetails",
+        data,
+        "POST"
+      );
+      const User_data = await request.json();
+      setUserDetails({
+        UserName: User_data.message.User_Name,
+        UserTag: User_data.message.User_tag,
+        UserId : User_data.message._id,
+        Image:User_data.message.Image,
+        LikedList : User_data.message.Like_list,
+        Notifications : User_data.message.NewNotifications
+      });
+    };
     return (
-      <AppContext.Provider value={{NotificationList,setNotificationList,LikedList, setLikedList, Total_Documents,SetTotal_Documents,TweetsState,setTweetsState,LoggedIn, setLoggedIn, Auth_Crededentials, setAuth_Crededentials, UserDetails, setUserDetails,SingleTweet,setSingleTweet, comments,setcomments}}>
+      <AppContext.Provider value={{getDetails,NotificationList,setNotificationList,LikedList, setLikedList, Total_Documents,SetTotal_Documents,TweetsState,setTweetsState,LoggedIn, setLoggedIn, Auth_Crededentials, setAuth_Crededentials, UserDetails, setUserDetails,SingleTweet,setSingleTweet, comments,setcomments}}>
         {children}
       </AppContext.Provider>
     );

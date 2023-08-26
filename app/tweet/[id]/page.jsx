@@ -1,6 +1,5 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import MainPageTweets from "@/components/MainPageTweets";
 import AppContext from "@/app/context/AppContext";
 import { useContext } from "react";
 import Tweets from "@/components/cards/Tweets";
@@ -9,11 +8,10 @@ import Server_call from "@/hooks/PostRequest";
 import { Skeleton } from "@mui/material";
 import ReplyIcon from "@mui/icons-material/Reply";
 import AutorenewIcon from "@mui/icons-material/Autorenew";
-import BrushIcon from "@mui/icons-material/Brush";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import like_tweet from "@/hooks/ActionCaller";
-import { ThumbUp, ThumbsUpDown } from "@mui/icons-material";
-import Link from "next/link";
+import { ThumbUp } from "@mui/icons-material";
+import { followers } from "@/hooks";
 import { useRouter } from "next/navigation";
 import { useSearchParams } from "next/navigation";
 import Error from "next/error";
@@ -43,8 +41,8 @@ export default function Page() {
     setTweetLikes(SingleTweet.Likes)
   }, [SingleTweet]);
   useEffect(() => {
-    console.log(comments);
-  }, [comments]);
+    console.log(commentsN);
+  }, [commentsN]);
   useEffect(() => {
     const query = searchparams.get("t");
     if (SingleTweet && SingleTweet._id === id) {
@@ -278,9 +276,10 @@ export default function Page() {
     <div className="element-with-scrollbar w-2/4 flex flex-col gap-2 items-center mr-5">
       <div className=" h-auto w-[98%] background_of_sub_component rounded-xl pb-5 mb-3">
         <div className="h-auto w-full ml-3 flex flex-row gap-4 pt-2">
+          <div className="w-full flex  flex-row justify-between">
           <div className="w-full flex flex-row items-center gap-2 pb-5">
             <div
-              className="w-1/12 bg-amber-100"
+              className=" w-1/6 bg-amber-100"
               style={{ borderRadius: "40px", height: "53px" }}
             >
               {SingleTweet.UserImage ? (
@@ -313,6 +312,15 @@ export default function Page() {
                 />
               )}
             </div>
+          </div>
+          <div className="w-full flex pr-6 items-center" style={{justifyContent:"right"}}>
+                <button 
+                onClick={()=>followers(UserDetails.UserId,UserDetails.UserTag,UserDetails.Image,
+                  SingleTweet.postedBy)}
+                className="background_of_sub_component_contrast text-white w-auto h-10 pr-4 pl-4 border-1 rounded-xl hover:bg-white hover:text-black">
+                  Follow
+                </button>
+          </div>
           </div>
         </div>
         {SingleTweet.Text ? (

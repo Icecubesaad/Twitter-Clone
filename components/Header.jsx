@@ -25,7 +25,44 @@ const Header = () => {
     setUserDetails,
     NotificationList,
     setNotificationList,
+    getDetails
   } = context;
+
+
+
+
+    
+let token;
+
+useEffect(() => {
+  console.log("heh")
+  const cookies = new Cookies();
+  token = cookies.get("user") || null;
+  if (token) {
+    setLoggedIn(true);
+    getDetails(token);
+  } else {
+    setLoggedIn(false);
+  }
+}, []);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   const [length, setlength] = useState(UserDetails.Notifications);
   useEffect(() => {
     if (UserDetails.Notifications) {

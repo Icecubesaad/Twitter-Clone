@@ -29,7 +29,7 @@ const Login = () => {
   const post = async () => {
     setloading(true)
     setValidation(true)
-    const response = await Server_call("/api/Login", Crededetials, "POST");
+    const response = await Server_call("/api/Auth/Login", Crededetials, "POST");
     const response_back = await response.json();
 
     if (response.status === 400) {

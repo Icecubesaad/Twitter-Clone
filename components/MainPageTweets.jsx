@@ -29,7 +29,7 @@ const MainPageTweets = () => {
   
   
 
-  const { LoggedIn,setLikedList,LikedList, setLoggedIn, UserDetails, setUserDetails,TweetsState,setTweetsState,Total_Documents,SetTotal_Documents } = context;
+  const { LoggedIn,setLikedList,LikedList, setLoggedIn, UserDetails, setUserDetails,TweetsState,setTweetsState,Total_Documents,SetTotal_Documents,getDetails } = context;
   // ref for tweet media
   const searchBoxRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -147,25 +147,7 @@ const MainPageTweets = () => {
   // Getting User Details
 
 
-
-
-  const getDetails = async (data) => {
-    
-    const request = await Server_call(
-      "/api/getDetails",
-      data,
-      "POST"
-    );
-    const User_data = await request.json();
-    setUserDetails({
-      UserName: User_data.message.User_Name,
-      UserTag: User_data.message.User_tag,
-      UserId : User_data.message._id,
-      Image:User_data.message.Image,
-      LikedList : User_data.message.Like_list,
-      Notifications : User_data.message.NewNotifications
-    });
-  };
+  
 
 
   // changing tweet credit (might turn it into a seprate function)
