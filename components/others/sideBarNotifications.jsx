@@ -6,6 +6,7 @@ import AppContext from '@/app/context/AppContext';
 import NotificationsLike from '../cards/NotificationsLike';
 import Spinner from '../Loading/Spinner';
 import NotificationsComments from '../cards/NotificationsComments';
+import NotificationsFollow from '../cards/NotificationsFollow';
 const SideBarNotifications = ({sidebarNotify}) => {
   const context = useContext(AppContext)
   const {NotificationList} = context
@@ -19,7 +20,11 @@ const SideBarNotifications = ({sidebarNotify}) => {
   {NotificationList ? NotificationList.map((e) => {
     if (e.About === 'c') {
       return <NotificationsComments Name={e.name} image={e.image} Text={e.Tweet} OriginalTweet={e.content} />;
-    } else {
+    } 
+    if(e.About === 'fr'){
+      return <NotificationsFollow Name={e.name} image={e.image}/>
+    }
+    else {
       return <NotificationsLike Name={e.name} image={e.image} Text={e.Tweet} />;
     }
   }) : <div className=' h-full w-full flex items-center justify-center'><Spinner/></div>}

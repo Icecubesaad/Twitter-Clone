@@ -11,8 +11,12 @@ const AppState = ({ children }) => {
       UserTag : "",
       UserId:"",
       Image:"",
-      LikedList:"",
-      Notifications : ""
+      LikedList:[],
+      Notifications : [],
+      Followers:0,
+      Following:0,
+      FollowerList:[],
+      FollowingList:[]
     });
     const [NotificationList, setNotificationList] = useState([]);
     const [LikedList, setLikedList] = useState([]);
@@ -34,7 +38,11 @@ const AppState = ({ children }) => {
         UserId : User_data.message._id,
         Image:User_data.message.Image,
         LikedList : User_data.message.Like_list,
-        Notifications : User_data.message.NewNotifications
+        Notifications : User_data.message.NewNotifications,
+        Followers:User_data.message.Followers,
+        Following:User_data.message.Following,
+        FollowerList:User_data.message.Follower_list,
+        FollowingList:User_data.message.Following_list
       });
     };
     return (

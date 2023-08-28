@@ -351,7 +351,7 @@ const MainPageTweets = () => {
           )
           : null
         }
-       {DocumentLeft>0 ? <div className=" flex items-center justify-center"><Spinner/></div> : <div className=" text-white">no more tweets :(</div>}
+       {DocumentLeft<=0 && DocumentLeft? <div className="text-white">no more tweets :(</div> : <div className=" flex items-center justify-center"><Spinner/></div>}
       </div>
     );
 }

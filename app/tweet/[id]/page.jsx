@@ -17,6 +17,7 @@ import { useSearchParams } from "next/navigation";
 import Error from "next/error";
 import Spinner from "@/components/Loading/Spinner";
 import Get_server_call from "@/hooks/GetRequest";
+import CommentBox from "@/components/CommentBox";
 export default function Page() {
   const searchparams = useSearchParams();
   const router = useRouter();
@@ -24,6 +25,7 @@ export default function Page() {
   const [liked, setliked] = useState(false);
   const [hasMore, sethasMore] = useState(true);
   const context = useContext(AppContext);
+  const [open, setOpen] = useState(false);
   const { UserDetails, setSingleTweet, SingleTweet, setcomments, comments } =
     context;
   const [TweetLikes, setTweetLikes] = useState(SingleTweet.Likes);
@@ -61,6 +63,13 @@ export default function Page() {
       }
     }
   }, []);
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setcommentsN(e=>e+1)
+    setOpen(false);
+  };
   useEffect(() => {
     if (fetchPath && typeof fetchPath === "string") {
       fetchTweet();
@@ -522,12 +531,13 @@ export default function Page() {
             <AutorenewIcon /> retweet
           </div>
           <div
+            onClick={handleClickOpen}
             style={{ transition: "all 300ms" }}
             className="w cursor-pointer w-1/3 pl-6 pr-6 flex flex-row justify-center items-center gap-1 text-white h-12 border-1 pt-4 hover:bg-slate-500 background_of_sub_component_contrast pb-4 rounded-lg"
           >
             <ReplyIcon /> reply
           </div>
-          {/* <CommentBox open={open} accountName={author} AccountPic={authorImage} TweetText={Text} User={UserDetails.UserTag} TweetId={unique} UserPic={UserDetails.Image} UserId={UserDetails.UserId} handleClose={handleClose} /> */}
+          <CommentBox open={open} accountName={SingleTweet.postedBy} AccountPic={SingleTweet.UserImage} TweetText={SingleTweet.Text} User={UserDetails.UserTag} TweetId={SingleTweet._id} UserPic={UserDetails.Image} UserId={UserDetails.UserId} handleClose={handleClose} />
         </div>
       </div>
       {comments && comments.length > 0 ? (

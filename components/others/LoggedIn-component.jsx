@@ -18,7 +18,7 @@ const LoggedIn_Component = () => {
         <div className="flex flex-row h-32">
           <div className=" flex flex-col items-center gap-3 w-1/2 justify-center">
             <div className="text-white font-sans text-lg">followers</div>
-            <div className="text-white font-sans text-lg">0</div>
+            <div className="text-white font-sans text-lg">{UserDetails.Followers}</div>
           </div>
           <div className=" w-px h-24 bg-white mt-3"></div>
           <div className="flex flex-col items-center gap-3 w-1/2 justify-center">
