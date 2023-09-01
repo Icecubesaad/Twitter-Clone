@@ -8,11 +8,14 @@ export async function GET(req,res){
     const limit = url.searchParams.get("limit")
     const skip = url.searchParams.get("skip")
     const id = url.searchParams.get("id")
+    console.log(url)
     try {
-        console.log("getting comments")
+        console.log(id)
         await dbConnect();
-        console.log("id recieved : ",id)
         const data = await Tweet_comments_model.find({OriginalTweet:id}).limit(limit).skip(skip)
+        if(!data){
+            return NextResponse.json({message:"no replies"},{status:401})
+        }
         return NextResponse.json({
             message : {data : data}
         },

@@ -12,10 +12,12 @@ import like_tweet from "@/hooks/ActionCaller";
 import { ThumbUp, ThumbsUpDown } from "@mui/icons-material";
 import CommentBox from "../CommentBox";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import ActionCaller from "@/hooks/ActionCaller";
-import { followers } from "@/hooks";
+import { followers, getting_image_grid_styles, handleClickOpen, handleClose } from "@/hooks";
 const Tweets = ({ Text, Image, unique, ImageAmount,author,authorImage,LikedBy,Likes,link,query,Comments }) => {
   const [TweetLikes, setTweetLikes] = useState(Likes);
+  const router = useRouter()
   const [liked, setliked] = useState(false);
   const context = useContext(AppContext)
   const {UserDetails} = context
@@ -23,15 +25,9 @@ const Tweets = ({ Text, Image, unique, ImageAmount,author,authorImage,LikedBy,Li
   const [open, setOpen] = useState(false);
   const [comments, setcomments] = useState(Comments);
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-  const handleClose = () => {
-    setcomments(e=>e+1)
-    setOpen(false);
-  };
 
 
+  // FOR INIITAL RENDER
 
 
   useEffect(() => {
@@ -39,13 +35,19 @@ const Tweets = ({ Text, Image, unique, ImageAmount,author,authorImage,LikedBy,Li
       return
     }
     getUserId()
+
     if(LikedBy.includes(UserDetails.UserId)){
         setliked(true)
     }
   }, []);
+
+
+  // CHECKING LIKES  ON A TWEET BY LOGGED IN USER WHENEVER USER ID CHANGES (LOGGING, SIGNING OUT)
+
+
   useEffect(() => {
     if(UserDetails.UserId){
-      if(LikedBy.includes(UserDetails.UserId)){           // working
+      if(LikedBy.includes(UserDetails.UserId)){ 
         setliked(true)
       }
     }
@@ -53,23 +55,46 @@ const Tweets = ({ Text, Image, unique, ImageAmount,author,authorImage,LikedBy,Li
       setliked(false)
     }
   }, [UserDetails.UserId]);
+
+  // LIKING TWEET
+
   const like = async()=>{
-    setTweetLikes((e)=>e+1)
-    const response = await ActionCaller(unique,"like",UserId,author,`/api/Tweets/TweetActions/Like?t=${query}`)
-    if(response && response.status === 200){
-      const response2 = await ActionCaller(unique,"like",UserId,author,`/api/Tweets/TweetActions/Notifications/POST?t=${query}`)
+    if(!UserDetails.UserId || UserDetails.UserId === ''){
+      router.push('/Login')
+    }
+    else{
+      setliked(true)
+      setTweetLikes((e)=>e+1)
+      const response = await ActionCaller(unique,"like",UserDetails.UserId,author,`/api/Tweets/TweetActions/Like?t=${query}`)
+      if(response && response.status === 200){
+        const response2 = await ActionCaller(unique,"like",UserDetails.UserId,author,`/api/Tweets/TweetActions/Notifications/POST?t=${query}`)
+      }
+      if(response && response.status === 402){
+        return
+      }
+      if(response && response.status === 405){
+        router.push('/Login')
+      }
     }
   }
+
+  // DISLIKING TWEET
   const dislike = ()=>{
+    setliked(false)
     ActionCaller(unique,"dislike",UserId,author,`/api/Tweets/TweetActions/Like?t=${query}`)
     setTweetLikes((e)=>e-1)
   }
   const getUserId = ()=>{
     setUserId(UserDetails.UserId)
   }
+
   const [ImageStyle, setImageStyle] = useState({
    image :  {height:"100%",width:"100%"}
   });
+
+
+  // SETTING THE IMAGE GRID STYLES FOR INDIVIDUAL TWEETS
+
   const [ImageGrid, setImageGrid] = useState({
     Left: {
       display: "grid",
@@ -87,86 +112,19 @@ const Tweets = ({ Text, Image, unique, ImageAmount,author,authorImage,LikedBy,Li
       gridTemplateRows: "",
     },
   });
+
+
   useEffect(() => {
-    if (ImageAmount === 1) {
-      setImageGrid({
-        main: {
-          display: "flex",
-          width: "80%",
-          justifyContent: "center",
-          alignItems: "center",
-        },
-        Left: {
-            display: "flex",
-            width: "100%",
-            height: "250px",
-            justifyContent :"center",
-            alignItems:"center"
-          },
-          
-      });
-    }
-    if (ImageAmount === 2) {
-      setImageGrid({
-        main: {
-          display: "grid",
-          gridTemplateColumns: "repeat(2,1fr)",
-          width: "80%",
-        },
-        Left: {
-          display: "flex",
-          width: "100%",
-          height: "250px",
-        },
-        Right: {
-          display: "flex",
-          width: "100%",
-          height: "250px",
-        },
-      });
-    }
-    if (ImageAmount === 3) {
-      setImageGrid({
-        main: {
-          display: "grid",
-          gridTemplateColumns: "repeat(2,1fr)",
-          width: "80%",
-          columnGap : "20px"
-        },
-        Right: {
-          display: "grid",
-          gridTemplateRows: "repeat(2,1fr)",
-          width: "100%",
-          height: "200px",
-        },
-      });
-    }
-    if (ImageAmount === 4) {
-      setImageGrid({
-        main: {
-          display: "grid",
-          gridTemplateColumns: "repeat(2,1fr)",
-          width: "80%",
-        },
-        Left: {
-          display: "grid",
-          gridTemplateRows: "repeat(2,1fr)",
-          width: "100%",
-          height: "250px",
-        },
-        Right: {
-          display: "grid",
-          gridTemplateRows: "repeat(2,1fr)",
-          width: "100%",
-          height: "250px",
-        },
-      });
-    }
+    getting_image_grid_styles(ImageAmount,setImageGrid)
   }, []);
+
   const [style, setstyle] = useState({
     color: "blue",
     display: "flex",
   });
+
+  // SHOWING FULL TEXT
+
   const showFullText = () => {
     setstyle({ display: "none" });
     const tweet_area = document.getElementById("tweet_area");
@@ -175,12 +133,16 @@ const Tweets = ({ Text, Image, unique, ImageAmount,author,authorImage,LikedBy,Li
     tweet_area.style.height = "auto";
     setcutText(Text);
   };
+
+  // SLICING TEXT STRING IF IT EXCEEDS THE LIMIT OF 200 AND ADDING A READ MORE BUTTON.
+
   const [CutText, setcutText] = useState(Text);
   useEffect(() => {
     if (Text.length > 200) {
       setcutText(Text.slice(0, 200));
     }
   }, []);
+  
   return (
     
     <div className="w-full flex flex-col items-center mr-1 mt-2" key={unique}>
@@ -276,13 +238,13 @@ const Tweets = ({ Text, Image, unique, ImageAmount,author,authorImage,LikedBy,Li
         <div
         style={{ transition: "all 300ms" }}
         className="w cursor-pointer w-1/3 pl-6 pr-6 flex flex-row justify-center items-center gap-1 text-white h-12 border-1 pt-4 hover:bg-slate-500 background_of_sub_component_contrast pb-4 rounded-lg"
-        onClick={()=>{dislike(),setliked(false)}}
+        onClick={()=>{dislike()}}
       ><FavoriteIcon sx={{color:"red"}}/> Liked</div>
       : 
       <div
       style={{ transition: "all 300ms" }}
       className="w cursor-pointer w-1/3 pl-6 pr-6 flex flex-row justify-center items-center gap-1 text-white h-12 border-1 pt-4 hover:bg-slate-500 background_of_sub_component_contrast pb-4 rounded-lg"
-      onClick={()=>{like(),setliked(true)}}
+      onClick={()=>{like()}}
       >
               <FavoriteIcon /> like </div> 
               }
@@ -294,12 +256,12 @@ const Tweets = ({ Text, Image, unique, ImageAmount,author,authorImage,LikedBy,Li
           </div>
           <div
             style={{ transition: "all 300ms" }}
-            onClick={handleClickOpen}
+            onClick={()=>handleClickOpen(setOpen,UserDetails.UserId,router)}
             className="w cursor-pointer w-1/3 pl-4 pr-4 flex justify-center  flex-row items-center gap-1 text-white h-12 border-1 pt-4 hover:bg-slate-500 background_of_sub_component_contrast pb-4  rounded-lg"
           >
             <ReplyIcon /> reply
           </div>
-          <CommentBox open={open} accountName={author} AccountPic={authorImage} TweetText={Text} User={UserDetails.UserTag} TweetId={unique} UserPic={UserDetails.Image} UserId={UserDetails.UserId} handleClose={handleClose} />
+          <CommentBox open={open} accountName={author} AccountPic={authorImage} TweetText={Text} User={UserDetails.UserTag} TweetId={unique} UserPic={UserDetails.Image} UserId={UserDetails.UserId} handleClose={()=>{handleClose(setOpen)}} />
         </div>
       </div>
     </div>

@@ -8,7 +8,6 @@ if (!cached) {
 }
 
 const dbConnect = async () => {
-    console.log("Connnecting to databse")
     if (cached.conn) {
         return cached.conn;
     }

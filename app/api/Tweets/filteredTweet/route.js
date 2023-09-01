@@ -5,9 +5,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(req,res){
     const url = new URL(req.url)
-    console.log(url)
     const query = url.searchParams.get("t");
-    console.log(query)
     try {
         await dbConnect()
         const data=await req.json()

@@ -41,7 +41,6 @@ const UploadPhoto = ({change_image,loading_post}) => {
 
 
       useEffect(() => {
-        console.log(media)
         if(media.length>1){
             setmedia([media[1]])
         }

@@ -35,7 +35,6 @@ const Header = () => {
 let token;
 
 useEffect(() => {
-  console.log("heh")
   const cookies = new Cookies();
   token = cookies.get("user") || null;
   if (token) {
@@ -90,7 +89,6 @@ useEffect(() => {
         "/api/Tweets/TweetActions/Notifications/GET"
       );
       if (response) {
-        console.log(response)
         setNotificationList(response);
         const response2 = await gettingNotifications(
           UserDetails.UserId,
@@ -104,7 +102,6 @@ useEffect(() => {
     // UserDetails.Notifications = []
   };
   useEffect(() => {
-    console.log(NotificationList);
   }, [NotificationList]);
   const Logout_func = () => {
     try {
@@ -121,7 +118,7 @@ useEffect(() => {
       cookie.remove("user");
       push("/Login");
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
   return (

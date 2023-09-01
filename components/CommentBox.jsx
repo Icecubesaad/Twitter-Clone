@@ -34,8 +34,6 @@ const CommentBox = ({
   const [option, setoption] = useState(false);
   const [loading, setloading] = useState(false);
 
-  console.log(User, UserId, TweetId);
-
   const [Tweet, setTweet] = useState({
     Text: "",
     User_id: UserId,
@@ -122,7 +120,6 @@ const CommentBox = ({
       "POST"
     );
     if (response.status === 200) {
-      console.log("increasing the number of  the comments");
       const Response = await ActionCaller(
         TweetId,
         "c",

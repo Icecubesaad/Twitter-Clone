@@ -12,7 +12,6 @@ export async function GET(req,res){
         const documents = await Tweet_model.count()
         const data = await Tweet_model.find().limit(limit).skip(skip)
         const Document_Left = documents-(Number(limit)+Number(skip))
-        console.log("Documents Requested : ",limit,"Documents Left : ",Document_Left)
         return NextResponse.json({
             message : {data : data,DocumentsLeft : Document_Left}
         },

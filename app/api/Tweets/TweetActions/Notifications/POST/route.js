@@ -5,14 +5,14 @@ import dbConnect from "@/server/utils/database";
 import { NextResponse } from "next/server";
 
 export async function POST(req,res){
-    console.log("Posting notifications")
+    
     try {
         await dbConnect();
         const payload = await req.json()
-        console.log(payload)
+        
         const url = new URL(req.url)
         const query = url.searchParams.get("t")
-        console.log(query)
+       
         let TweetDetail;
         let action
         TweetDetail = await Tweet_model.findOne({_id : payload.id})
@@ -26,23 +26,28 @@ export async function POST(req,res){
             action = "l"
         }
         const Liked_by_user_details = await User_model.findOne({_id : payload.User_id})
-        await User_model.findOneAndUpdate(
-            {User_tag : payload.author},
-            {$push : {
-                Notifications : {
-                    id: payload.User_id,
-                    image: Liked_by_user_details.Image,
-                    name: Liked_by_user_details.User_tag,
-                    Tweet: TweetDetail.Text,
-                    About:action,
-                    content: payload.content
+        if(payload.author === Liked_by_user_details.User_tag){
+            return NextResponse.json({message : "same user"},{status:402})
+        }
+        else{
+            await User_model.findOneAndUpdate(
+                {User_tag : payload.author},
+                {$push : {
+                    Notifications : {
+                        id: payload.User_id,
+                        image: Liked_by_user_details.Image,
+                        name: Liked_by_user_details.User_tag,
+                        Tweet: TweetDetail.Text,
+                        About:action,
+                        content: payload.content
+                    }
                 }
-            }
-            },
-            { $inc: { NewNotifications: 1 } },
-            {new : true}
-        )
-        return NextResponse.json({message : "Success"},{status:200})
+                },
+                { $inc: { NewNotifications: 1 } },
+                {new : true}
+            )
+            return NextResponse.json({message : "Success"},{status:200})
+        }
     } catch (error) {
         return NextResponse.json({message : "Failed"},{status:400})
     }

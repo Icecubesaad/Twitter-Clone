@@ -14,6 +14,7 @@ import { useState } from "react";
 import { Send } from "@mui/icons-material";
 import Spinner from "@/components/Loading/Spinner";
 import checkLikes from "@/hooks/checkLikes";
+import { GetTweets, checkingToken } from "@/hooks";
 const MainPageTweets = () => {
     const [loadingPost, setloadingPost] = useState(false);
   const [hasMore, sethasMore] = useState(true);
@@ -98,20 +99,25 @@ const MainPageTweets = () => {
   const changingMediaState = (media) => {
     setTweet({
       ...Tweet,
-      Image: media,
+      ["Image"]: media,
     });
   };
 
 
+
+
+  useEffect(() => {
+    console.log(Tweet)
+  }, [Tweet]);
 
   // getting token from cookies
 
 
   useEffect(() => {
     if(TweetsState.length===0){
-      GetTweets(limit,skip)   
+      GetTweets(limit,skip,setskip,setfetching,setDocumentLeft,setTweetsState,TweetsState,'/api/Tweets/TweetGet') 
     }
-    checkingToken()
+    checkingToken(getDetails,setLoggedIn)           // checking if  user is logged in
     const interval = setInterval(checkingToken, 60 * 60 * 1000); // 1 hour interval
 
     // Clean up the interval when the component is unmounted
@@ -121,30 +127,17 @@ const MainPageTweets = () => {
   }, []);
 
   // Setting token in Tweet Payload
-  const checkingToken = ()=>{
-    console.log("heh")
-    const cookies = new Cookies();
-    token = cookies.get("user") || null;
-    if (token) {
-      setLoggedIn(true);
-      getDetails(token);
-      settingToken(token)
-    } else {
-      setLoggedIn(false);
-    }
-  }
 
 
 
-  const settingToken =(token)=>{
+  useEffect(() => {
     setTweet({
-      User_id : token,
-      "Image":["null"]
+      ...Tweets,
+      ["User_id"] : UserDetails.UserId,
+      ["Image"]:['null']
     })
-  }
+  }, [UserDetails.UserId]);
 
-
-  // Getting User Details
 
 
   
@@ -170,14 +163,27 @@ const MainPageTweets = () => {
 
   // making call to post tweet
 
-
+  
 
   const PostTweet = async () => {
     setloadingPost(true)
     const response = await Server_call("/api/Tweets/TweetPost",Tweet,"POST");
     const response_back = await response.json()
-    if(response_back.message === 'SUCCESS'){
+    if(response.status === 200){
+      // let client_side_tweet = {
+      //   image:Tweet.Image,
+      //   postedBy : UserDetails.UserTag,
+      //   UserImage : UserDetails.Image,
+      //   Text:Tweet.Text,
+      //   User_id:UserDetails.UserId,          PROBLEM : CANNOT GENERATE A ID OF IT
+                                                // SOLUTION : GENERATE DIFFERENT IDS FROM FRONT END AND MAKE IT ITS PERMANENET ID FOR FETCHING PURPOSES.
+      //   LikedBy: [],
+      //   imageAmount : Tweet.Image.length,
+      //   Likes:0,
+      //   comments:0
+      // };
       setloadingPost(false)
+      // setTweetsState([client_side_tweet,...TweetsState])
       setTweet({
         Image:"",
         Text:"",
@@ -188,74 +194,24 @@ const MainPageTweets = () => {
 
 
   useEffect(() => {
-    console.log(Tweet)
-  }, [Tweet]);
-
-
-  const FetchNewData = async()=>{
-    console.log("getting new document of limit : ",limit," documents left are : ",DocumentLeft)
-    console.log("from fetched data : ",TweetsState)
-    const response = await Get_server_call(`/api/Tweets/TweetGet?limit=${limit}&skip=${skip}`)
-      const response_back = await response.json();
-      if(response_back.message.data){
-        setskip(e=>e+3)
-        setDocumentLeft(response_back.message.DocumentsLeft)
-        console.log("Document Left : ",response_back.message.DocumentLeft)
-        console.log(typeof(response_back.message.data))     // object
-        console.log("raw : ",response_back.message.data)
-        setTweetsState([...TweetsState,...response_back.message.data])
-        setfetching(true)
-      }
-  }
-
-  // getting tweets from Database
-
-    const GetTweets = async(limit,skip)=>{
-      console.log("inside a function : ",TweetsState)
-      const response = await Get_server_call(`/api/Tweets/TweetGet?limit=${limit}&skip=${skip}`)
-      const response_back = await response.json();
-      if(response_back.message.data){
-        setskip(e=>e+3)
-        console.log("fetched the initial data")
-        setDocumentLeft(response_back.message.DocumentsLeft)
-        console.log("Documents Requested: ",limit," Documents Left : ",response_back.message.DocumentsLeft)
-        setTweetsState([...response_back.message.data])
-        setfetching(true)
-      }
-      return response_back
-    }
+    console.log(TweetsState)
+  }, [TweetsState]);
+  
 
 
 
     useEffect(() => {
-      console.log("TRIGGEREd")
-      console.log(DocumentLeft)
       if(DocumentLeft<5 && DocumentLeft>0 && DocumentLeft!=null){
         setlimit(DocumentLeft)
       }
       if(DocumentLeft<=0  && DocumentLeft!=null){
-        console.log("All the data has been fetched")
         sethasMore(false)
       }
       if(DocumentLeft>0 && fetching && DocumentLeft!=null)
       {
-        console.log("FETCHING NEW DATa")
-        FetchNewData()
+        GetTweets(limit,skip,setskip,setfetching,setDocumentLeft,setTweetsState,TweetsState,'/api/Tweets/TweetGet')
       }
     }, [DocumentLeft]);
-
-
-
-    useEffect(() => {
-      gettingLikedList()
-    }, [TweetsState,UserDetails]);
-    const gettingLikedList = async()=>{
-      let array = await checkLikes(UserDetails.LikedList,TweetsState)
-      setLikedList(array)
-    }
-    useEffect(() => {
-      console.log(LikedList)
-    }, [LikedList]);
 
     return (
         <div className=" element-with-scrollbar w-2/4 flex flex-col gap-2 items-center mr-5" style={{height:"120vh" , overflow:"hidden", overflowY : "scroll"}}>
@@ -277,6 +233,7 @@ const MainPageTweets = () => {
                 name="Text"
                 className="background_of_sub_component_contrast"
                 placeholder="what's happening"
+                value={Tweet.Text}
                 style={{
                   overflow: 'hidden',
                   width: '100%',
@@ -340,7 +297,7 @@ const MainPageTweets = () => {
               style={{ transition: "all 300ms" }}
               className="w cursor-pointer w-auto pl-4 pr-4 flex flex-row items-center gap-1 text-white h-12 border-1 hover:bg-slate-500 pb-4 background_of_sub_component_contrast rounded-lg justify-center"
             >
-               {!loadingPost ? <div className="pt-4"><Send sx={{ color: "white" }} /> Post</div> : <div className="pr-4"><Spinner/></div>}
+               {!loadingPost  ? <div className="pt-4"><Send sx={{ color: "white" }} /> Post</div> : <div className="pr-4"><Spinner/></div>}
             </button>
 
           </div>

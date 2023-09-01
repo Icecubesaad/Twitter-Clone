@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(req,res){
     try {
-        console.log("RESETTING THE NOTIFICATIOS")
+       
         await dbConnect()
         const payload  = await req.json()
         const howa = await User_model.findOneAndUpdate(

@@ -50,13 +50,11 @@ const Signup = () => {
             if(Validation){
                 const response = await Server_call("/api/Auth/check/Signup",Crededetials,"POST")
                 const response_back = await response.json();
-                console.log("RESPONSE BACK FROM SERVER AHHAHA : ",response_back)
                 if(response_back.message === "Already Exist"){
                     setValidation(false)
                     seterror("ACCOUNT ALREADY EXIST")
                     setLoading(false)
                 }
-                console.log("Responsive from server : ", response_back)
                 if(response.status === 200){
                     setLoading(false)
                     setAuth_Crededentials(
@@ -77,7 +75,7 @@ const Signup = () => {
                 seterror("Validation Error")
             }
         } catch (error) {
-            console.log(error)
+            console.error(error)
         }
         
         

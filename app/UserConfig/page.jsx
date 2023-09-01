@@ -32,9 +32,7 @@ const UserName = () => {
     const post = async()=>{
         setValidation(true)
         setloading_post(true)
-        console.log("posting")
         const {User_Name,User_tag,Image} = Auth_Crededentials
-        console.log("before posting : ",Image)
        if(User_Name.length<1){
         setValidation(false)
         seterror(" must be 1 letter long")
@@ -62,7 +60,6 @@ const UserName = () => {
                     seterror("ACCOUNT ALREADY EXIST")
                     setloading_post(false)
                 }
-                console.log("Responsive from server : ", response_back)
                 if(response.status === 200){
                     setValidation(true)
                     setloading_post(false)
@@ -81,7 +78,7 @@ const UserName = () => {
                 seterror("Validation Error")
             }
         } catch (error) {
-            console.log(error)
+            console.error(error)
         }
         
         
@@ -109,7 +106,6 @@ const UserName = () => {
         }
     }
     useEffect(() => {
-        console.log(Auth_Crededentials)
     }, [Auth_Crededentials]);
     useEffect(() => {
         if(Auth_Crededentials.Image){
@@ -121,7 +117,6 @@ const UserName = () => {
         setAuth_Crededentials(Crededetials)
         const container_element = document.getElementById("getting_name")
         const container_element2 = document.getElementById("after_post")
-        console.log(container_element)
         container_element.style.display = "none"
         container_element2.style.display = "flex"
 

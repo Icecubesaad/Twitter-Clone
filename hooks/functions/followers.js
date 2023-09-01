@@ -1,11 +1,11 @@
-const followers = async(id,name,image,author)=>{
-    const response = await fetch("/api/Auth/user-followers",{
+const followers = async(id,name,image,author,mode)=>{
+    const response = await fetch(`/api/Auth/user-followers?q=${mode}`,{
         method:"POST",
         body:JSON.stringify({
             id:id,
             name:name,
             image:image,
-            author:author
+            author:author,
         })
     });
     
