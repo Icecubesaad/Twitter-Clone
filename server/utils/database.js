@@ -1,6 +1,6 @@
 import mongoose from "mongoose"
 
-const MONGODB_URL = process.env.MONGODB_URL_E;
+const MONGODB_URL = 'mongodb+srv://saadqad418:icecube418@cluster0.kaidwp4.mongodb.net/Data';
 let cached = global.mongoose;
 
 if (!cached) {
