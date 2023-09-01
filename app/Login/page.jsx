@@ -7,8 +7,6 @@ import Server_call from "@/hooks/PostRequest";
 import { useCookies } from "react-cookie";
 import Spinner from "@/components/Loading/Spinner";
 const Login = () => {
-    // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJRCI6eyJpZCI6IjY0YzZjMmFlMzRlZmY1NjVhYjA3Y2YyNSJ9LCJpYXQiOjE2OTA3NDc1OTB9.x4_LcqVjQSHJPorTrYkhgQMDR8w5ueSgOD7G9prbXGY
-    // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJJRCI6eyJpZCI6IjY0YzJjNjY4N2YxMGRjNTM1YTllMjVmYyJ9LCJpYXQiOjE2OTA3NDc2NzB9.9oieXqeiHFIKCZWiLZ6QrBkhyiravmo1H0W8wkY2H6Q
   const [cookie, setCookie] = useCookies(["user"]);
   const [loading, setloading] = useState(false);
   const { push } = useRouter();
