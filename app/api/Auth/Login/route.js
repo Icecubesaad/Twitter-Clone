@@ -3,7 +3,7 @@ import dbConnect from "@/server/utils/database";
 import { NextResponse } from "next/server";
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const secret = 'UROOBA';
+const secret = process.env.SECRET;
 
 export async function POST(req, res) {
   await dbConnect();

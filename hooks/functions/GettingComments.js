@@ -6,22 +6,26 @@ const GetComments = async (
   skip,
   setskip,
   setfetching,
-  setDocumentLeft,
+  settotalcomment,
   setTweetsState,
   TweetsState,
   path,
   id
 ) => {
+  console.log('skip = ',skip)
+  console.log('id = ',id)
+  console.log('current comment = ',TweetsState)
   const response = await Get_server_call(
     `${path}?limit=${limit}&skip=${skip}&id=${id}`
   );
   const response_back = await response.json();
   if (response_back.message.data) {
     setskip((e) => e + 3);
-    setDocumentLeft(response_back.message.DocumentsLeft);
+    settotalcomment((e)=>e-3);
     setTweetsState([...TweetsState, ...response_back.message.data]);
     setfetching(true);
   }
+  console.log(response_back)
   return response_back;
 };
 module.exports = GetComments;

@@ -13,7 +13,7 @@ export async function GET(req,res){
         const data = await Tweet_model.find().limit(limit).skip(skip)
         const Document_Left = documents-(Number(limit)+Number(skip))
         return NextResponse.json({
-            message : {data : data,DocumentsLeft : Document_Left}
+            message : {data : data,DocumentsLeft : Document_Left,TotalDocuments:documents}
         },
         {
             status : 200
