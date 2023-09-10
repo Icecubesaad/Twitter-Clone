@@ -12,9 +12,6 @@ const GetComments = async (
   path,
   id
 ) => {
-  console.log('skip = ',skip)
-  console.log('id = ',id)
-  console.log('current comment = ',TweetsState)
   const response = await Get_server_call(
     `${path}?limit=${limit}&skip=${skip}&id=${id}`
   );
@@ -25,7 +22,7 @@ const GetComments = async (
     setTweetsState([...TweetsState, ...response_back.message.data]);
     setfetching(true);
   }
-  console.log(response_back)
+  
   return response_back;
 };
 module.exports = GetComments;

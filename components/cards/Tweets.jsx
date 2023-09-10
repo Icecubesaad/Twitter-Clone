@@ -31,6 +31,7 @@ const Tweets = ({ Text, Image, unique, ImageAmount,author,authorImage,LikedBy,Li
 
 
   useEffect(() => {
+    getting_image_grid_styles(ImageAmount,setImageGrid)
     if(UserId){
       return
     }
@@ -114,9 +115,6 @@ const Tweets = ({ Text, Image, unique, ImageAmount,author,authorImage,LikedBy,Li
   });
 
 
-  useEffect(() => {
-    getting_image_grid_styles(ImageAmount,setImageGrid)
-  }, []);
 
   const [style, setstyle] = useState({
     color: "blue",
