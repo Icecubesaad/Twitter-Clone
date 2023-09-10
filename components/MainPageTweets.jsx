@@ -107,10 +107,6 @@ const MainPageTweets = () => {
 
 
 
-  useEffect(() => {
-    console.log(Tweet)
-  }, [Tweet]);
-
   // getting token from cookies
   
 
@@ -126,10 +122,7 @@ const MainPageTweets = () => {
       clearInterval(interval);
     };
   }, []);
-  // Setting token in Tweet Payload
-  useEffect(() => {
-    console.log(totalDocuments)
-  }, [totalDocuments]);
+
 
 
   useEffect(() => {
@@ -196,7 +189,6 @@ const MainPageTweets = () => {
 
 
     useEffect(() => {
-      console.log('Documents Left : ',DocumentLeft)
       if(DocumentLeft<5 && DocumentLeft>0 && DocumentLeft!=null){
         setlimit(DocumentLeft)
       }

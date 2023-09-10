@@ -112,7 +112,6 @@ export default function Page() {
   const fetchTweet = async () => {
     if (fetchPath) {
       const response = await Server_call(fetchPath, id, "POST");
-      console.log(response)
       if (response.status === 200 || response) {
         GetComments(limit,skip,setskip,setfetching,setTotalComment,setcomments,comments,'/api/Tweets/TweetActions/comments/GET',id)
         const data = await response.json();
@@ -183,9 +182,8 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
-    console.log(";documentLeft : ",TotalComment )
     if (TotalComment > 0 && fetching && TotalComment !== null&& TotalComment!==undefined && comments.length>0) {
-      console.log('fetching Documents  again')
+     
       GetComments(limit,skip,setskip,setfetching,setTotalComment,setcomments,comments,'/api/Tweets/TweetActions/comments/GET',id)
     }
     if(TotalComment < 0 && fetching && TotalComment !== null&& TotalComment!==undefined && comments.length>0){
@@ -220,9 +218,7 @@ const router = useRouter()
   if (!found) {
     router.push('/error')
   }
-  useEffect(() => {
-    console.log(likePath)
-  }, [likePath]);
+
   return (
     <div className="element-with-scrollbar w-2/4 flex flex-col gap-2 items-center mr-5">
       <div className=" h-auto w-[98%] background_of_sub_component rounded-xl pb-5 mb-3">
