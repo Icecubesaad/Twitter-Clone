@@ -16,6 +16,7 @@ export async function POST(req, res) {
     console.log(payload);
     const url = new URL(req.url);
     const query = url.searchParams.get("t");
+    console.log(url)
     console.log(query);
     const Increase = { $inc: { Likes: 1 } };
     const decrease = { $inc: { Likes: -1 } };
@@ -53,16 +54,19 @@ export async function POST(req, res) {
               { $push: { LikedBy: payload.User_id } },
               { new: true }
             );
+            console.log('updated the tweet likedby field')
             await User_model.findOneAndUpdate(
               { User_tag: payload.author },
               { $inc: { NewNotifications: 1 } },
               { new: true }
               );
+              console.log('updated the user new notifications')
               await User_model.findOneAndUpdate(
                 { _id: payload.User_id },
                 { $push: { Like_list: payload.id } },
                 { new: true }
               );
+              console.log('added the liked tweet to user liked list')
             return NextResponse.json({ message: "success" }, { status: 200 });
           } catch (error) {
             // Handle errors here
@@ -76,18 +80,14 @@ export async function POST(req, res) {
         if (query === "t") {
           console.log("liking the main  tweets");
           try {
-            console.time('increasingLikes')
             await Tweet_model.findOneAndUpdate({ _id: payload.id,postedBy : payload.author }, Increase, {
               new: true,
             });
-            console.timeEnd('increasingLikes')
-            console.time('adding_in_tweet_likedBy')
             await Tweet_model.findOneAndUpdate(
               { _id: payload.id },
               { $push: { LikedBy: payload.User_id } },
               { new: true }
             );
-            console.timeEnd('adding_in_tweet_likedBy')
             if(checking_user_likes.User_tag === payload.author){
               return NextResponse.json({message:"same person"},{status:400})
             }
@@ -98,13 +98,11 @@ export async function POST(req, res) {
                 { new: true }
                 );
             }
-              console.time('pushing in user')
               await User_model.findOneAndUpdate(
                 { _id: payload.User_id },
                 { $push: { Like_list: payload.id } },
                 { new: true }
               );
-              console.timeEnd('pushing in user')
             return NextResponse.json({ message: "success" }, { status: 200 });
           } catch (error) {
             // Handle errors here

@@ -13,7 +13,7 @@ export async function POST(req, res) {
     console.log(UserDetails)
     const imageAmount = Image.length;
     console.log('image amount : ',imageAmount)
-    await Tweet_model.create({
+    const NewTweet = await Tweet_model.create({
       Text: Text, // Tweet Text
       image: Image, // image array
       user_id: UserDetails._id, // author id
@@ -26,7 +26,7 @@ export async function POST(req, res) {
     });
     return NextResponse.json(
       {
-        message: "SUCCESS",
+        message:NewTweet,
       },
       {
         status: 200,

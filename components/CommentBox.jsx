@@ -27,6 +27,11 @@ const CommentBox = ({
   AccountPic,
   UserPic,
   UserId,
+  setcomment,
+  set,
+  currentState,
+  setserver_side_comment,
+  server_side_comment
 }) => {
   const searchBoxRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -112,6 +117,7 @@ const CommentBox = ({
     e.target.style.height = `${e.target.scrollHeight}px`;
   };
   // POSTING TWEET
+  let comment_obj
   const PostTweet = async () => {
     setloading(true);
     const response = await Server_call(
@@ -120,6 +126,35 @@ const CommentBox = ({
       "POST"
     );
     if (response.status === 200) {
+      handleClose();
+      const response_back =  await response.json()
+       comment_obj = {
+        image:Tweet.Image,
+          postedBy : User,
+          UserImage : UserPic,
+          Text:Tweet.Text,
+          User_id:UserId,      
+          LikedBy: [],
+          imageAmount : Tweet.Image.length,
+          Likes:0,
+          Comments:0
+      }
+      if(currentState.length===0){
+        setcomment([comment_obj])
+      }
+      if(currentState.length>0){
+        setcomment([...currentState,comment_obj])
+      }
+      if(response_back.message){
+        let updated_obj = {...comment_obj,'id':response_back.message}
+        if(currentState.length===0){
+          setserver_side_comment([updated_obj])
+        }
+        if(currentState.length>0){
+          setserver_side_comment([...server_side_comment,updated_obj])
+        }
+        set(true)
+      }
       const Response = await ActionCaller(
         TweetId,
         "c",
@@ -138,8 +173,9 @@ const CommentBox = ({
           Tweet.Text
         );
       }
+      
       setloading(false);
-      handleClose();
+      
     }
   };
   return (

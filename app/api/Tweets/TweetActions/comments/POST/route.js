@@ -10,7 +10,7 @@ export async function POST(req, res) {
     const data = await req.json();
     const { Text, User_id, Image,UserImage, OriginalTweet,UserTag } = data;
     const imageAmount = Image.length;
-    await Tweet_comments_model.create({
+    const tweet_comment = await Tweet_comments_model.create({
       Text: Text, // Tweet Text
       image: Image, // image array
       user_id: User_id, // author id
@@ -22,9 +22,10 @@ export async function POST(req, res) {
       OriginalTweet: OriginalTweet,
       Comments:0  // comments on a reply
     });
+    console.log(tweet_comment)
     return NextResponse.json(
       {
-        message: "SUCCESS",
+        message: tweet_comment._id,
       },
       {
         status: 200,

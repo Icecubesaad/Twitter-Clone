@@ -19,6 +19,7 @@ const MainPageTweets = () => {
     const [loadingPost, setloadingPost] = useState(false);
   const [hasMore, sethasMore] = useState(true);
   const [fetching, setfetching] = useState(false);
+  const [totalDocuments, settotalDocuments] = useState(null);
   const [DocumentLeft, setDocumentLeft] = useState(null);
   const [loading, setloading] = useState(true);
   const [limit, setlimit] = useState(3);
@@ -27,7 +28,7 @@ const MainPageTweets = () => {
   const context = useContext(AppContext);
   const [imagePayload, setimagePayload] = useState("");
   const [skip, setskip] = useState(0);
-  
+  const [clientSide, setclientSide] = useState(false);
   
 
   const { LoggedIn,setLikedList,LikedList, setLoggedIn, UserDetails, setUserDetails,TweetsState,setTweetsState,Total_Documents,SetTotal_Documents,getDetails } = context;
@@ -111,11 +112,11 @@ const MainPageTweets = () => {
   }, [Tweet]);
 
   // getting token from cookies
-
+  
 
   useEffect(() => {
     if(TweetsState.length===0){
-      GetTweets(limit,skip,setskip,setfetching,setDocumentLeft,setTweetsState,TweetsState,'/api/Tweets/TweetGet') 
+      const response = GetTweets(limit,skip,setskip,setfetching,setDocumentLeft,setTweetsState,TweetsState,'/api/Tweets/TweetGet',settotalDocuments,totalDocuments) 
     }
     checkingToken(getDetails,setLoggedIn)           // checking if  user is logged in
     const interval = setInterval(checkingToken, 60 * 60 * 1000); // 1 hour interval
@@ -125,9 +126,10 @@ const MainPageTweets = () => {
       clearInterval(interval);
     };
   }, []);
-
   // Setting token in Tweet Payload
-
+  useEffect(() => {
+    console.log(totalDocuments)
+  }, [totalDocuments]);
 
 
   useEffect(() => {
@@ -162,45 +164,39 @@ const MainPageTweets = () => {
 
 
   // making call to post tweet
-
-  
-
+  const [client_side_tweet, setclient_side_tweet] = useState(null);
   const PostTweet = async () => {
     setloadingPost(true)
     const response = await Server_call("/api/Tweets/TweetPost",Tweet,"POST");
     const response_back = await response.json()
     if(response.status === 200){
-      // let client_side_tweet = {
-      //   image:Tweet.Image,
-      //   postedBy : UserDetails.UserTag,
-      //   UserImage : UserDetails.Image,
-      //   Text:Tweet.Text,
-      //   User_id:UserDetails.UserId,          PROBLEM : CANNOT GENERATE A ID OF IT
-                                                // SOLUTION : GENERATE DIFFERENT IDS FROM FRONT END AND MAKE IT ITS PERMANENET ID FOR FETCHING PURPOSES.
-      //   LikedBy: [],
-      //   imageAmount : Tweet.Image.length,
-      //   Likes:0,
-      //   comments:0
-      // };
       setloadingPost(false)
-      // setTweetsState([client_side_tweet,...TweetsState])
+      setclient_side_tweet({
+        image:Tweet.Image,
+        postedBy : UserDetails.UserTag,
+        UserImage : UserDetails.Image,
+        Text:Tweet.Text,
+        User_id:UserDetails.UserId,      
+        LikedBy: [],
+        imageAmount : Tweet.Image.length,
+        Likes:0,
+        Comments:0
+      })
       setTweet({
         Image:"",
         Text:"",
         User_id:""
       })
+      if(response_back.message){
+        setclientSide(response_back.message)
+        setclientSide(true)
+      }
     }
   };
 
 
-  useEffect(() => {
-    console.log(TweetsState)
-  }, [TweetsState]);
-  
-
-
-
     useEffect(() => {
+      console.log('Documents Left : ',DocumentLeft)
       if(DocumentLeft<5 && DocumentLeft>0 && DocumentLeft!=null){
         setlimit(DocumentLeft)
       }
@@ -209,9 +205,9 @@ const MainPageTweets = () => {
       }
       if(DocumentLeft>0 && fetching && DocumentLeft!=null)
       {
-        GetTweets(limit,skip,setskip,setfetching,setDocumentLeft,setTweetsState,TweetsState,'/api/Tweets/TweetGet')
+        GetTweets(limit,skip,setskip,setfetching,setDocumentLeft,setTweetsState,TweetsState,'/api/Tweets/TweetGet',settotalDocuments,totalDocuments)
       }
-    }, [DocumentLeft]);
+    }, [DocumentLeft,TweetsState]);
 
     return (
         <div className=" element-with-scrollbar w-2/4 flex flex-col gap-2 items-center mr-5" style={{height:"120vh" , overflow:"hidden", overflowY : "scroll"}}>
@@ -302,13 +298,14 @@ const MainPageTweets = () => {
 
           </div>
         </div>:null}
+        {clientSide && client_side_tweet.Text ? <Tweets authorImage={client_side_tweet.UserImage} author={client_side_tweet.postedBy} Text={client_side_tweet.Text} LikedBy={client_side_tweet.LikedBy} unique={client_side_tweet._id} Image={client_side_tweet.image} link={'/tweet/'} ImageAmount={client_side_tweet.imageAmount} User_using={UserDetails.UserId} Likes={client_side_tweet.Likes} query={'t'} Comments={client_side_tweet.Comments}  /> : null}
         { TweetsState.length>0 ?
           TweetsState.map((e,index)=>
             <Tweets authorImage={e.UserImage} author={e.postedBy} Text={e.Text} LikedBy={e.LikedBy} unique={e._id} Image={e.image} link={'/tweet/'} ImageAmount={e.imageAmount} User_using={UserDetails.UserId} Likes={e.Likes} query={'t'} Comments={e.Comments} />
           )
           : null
         }
-       {DocumentLeft<=0 && DocumentLeft? <div className="text-white">no more tweets :(</div> : <div className=" flex items-center justify-center"><Spinner/></div>}
+       {(DocumentLeft<=0 && DocumentLeft) || DocumentLeft === null ? <div className="text-white">no more tweets :(</div> : <div className=" flex items-center justify-center"><Spinner/></div>}
       </div>
     );
 }

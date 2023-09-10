@@ -8,16 +8,15 @@ export async function GET(req,res){
     const limit = url.searchParams.get("limit")
     const skip = url.searchParams.get("skip")
     const id = url.searchParams.get("id")
-    console.log(url)
     try {
-        console.log(id)
         await dbConnect();
         const data = await Tweet_comments_model.find({OriginalTweet:id}).limit(limit).skip(skip)
+        console.log(data.length)
         if(!data){
             return NextResponse.json({message:"no replies"},{status:401})
         }
         return NextResponse.json({
-            message : {data : data}
+            message : {data : data,DocumentsLeft:data.length-skip}
         },
         {
             status : 200

@@ -11,7 +11,13 @@ import AutorenewIcon from "@mui/icons-material/Autorenew";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import like_tweet from "@/hooks/ActionCaller";
 import { ThumbUp } from "@mui/icons-material";
-import { GetComments, GetTweets, followers, getting_image_grid_styles, updatingUserDetails } from "@/hooks";
+import {
+  GetComments,
+  GetTweets,
+  followers,
+  getting_image_grid_styles,
+  updatingUserDetails,
+} from "@/hooks";
 import { useSearchParams } from "next/navigation";
 import Spinner from "@/components/Loading/Spinner";
 import CommentBox from "@/components/CommentBox";
@@ -21,17 +27,21 @@ export default function Page() {
   const [liked, setliked] = useState(false);
   const context = useContext(AppContext);
   const [open, setOpen] = useState(false);
-  const { UserDetails, setUserDetails ,setSingleTweet, SingleTweet, setcomments, comments } =
-    context;
+  const [clientSide, setclientSide] = useState(false);
+  const {
+    UserDetails,
+    setUserDetails,
+    setSingleTweet,
+    SingleTweet,
+    setcomments,
+    comments,
+  } = context;
   const [TweetLikes, setTweetLikes] = useState(SingleTweet.Likes);
   const [commentsN, setcommentsN] = useState(SingleTweet.Comments);
   const id = path.split("/")[2];
   const [found, setfound] = useState(true);
-  const [errorCode, seterrorCode] = useState("");
-  const [fetching, setfetching] = useState(true);
+  const [fetching, setfetching] = useState(false);
   const [DocumentLeft, setDocumentLeft] = useState(null);
-  const [TotalComment, setTotalComment] = useState(null);
-
   const [limit, setlimit] = useState(3);
   const [skip, setskip] = useState(0);
   const [fetchPath, setfetchPath] = useState(null);
@@ -39,8 +49,7 @@ export default function Page() {
   const [noComments, setnoComments] = useState(false);
   const [server_side_comment, setserver_side_comment] = useState([]);
   const [client_side_comment, setclient_side_comment] = useState([]);
-  const [clientSide, setclientSide] = useState(false);
-  const [likePath, setlikePath] = useState(null);
+  const [totalDocuments, settotalDocuments] = useState(null);
   useEffect(() => {
     if (
       SingleTweet &&
@@ -61,87 +70,116 @@ export default function Page() {
     ) {
       setliked(true);
     }
-
   }, [SingleTweet]);
 
   useEffect(() => {
-    setTotalComment(SingleTweet.Comments);
-    setTweetLikes(SingleTweet.Likes);
-    setcommentsN(SingleTweet.Comments)
-    if(SingleTweet.Comments===0){
-      setnoComments(true)
-    }
-  }, [SingleTweet]);
-
-
+    console.log('clearing the comments')
+   setcomments([])
+  }, []);
   useEffect(() => {
     const query = searchparams.get("t");
     if (SingleTweet && SingleTweet._id === id) {
       return;
     } else {
       if (query === "c") {
-        setcomments([]);
+        setcomments([])
         setSingleTweet({});
         setfetchPath("/api/Tweets/filteredTweet?t=c");
-        setlikePath('/api/Tweets/TweetActions/Like?t=c')
         fetchTweet();
       }
       if (query === "t") {
-        setcomments([]);
+        setcomments([])
         setSingleTweet({});
-        setlikePath('/api/Tweets/TweetActions/Like?t=t');
         setfetchPath("/api/Tweets/filteredTweet");
       }
     }
-  }, [path]);
+    console.log('getting comments  , local comments : ',comments)
+    const response = GetComments(
+      limit,
+      skip,
+      setskip,
+      setfetching,
+      settotalDocuments,
+      setcomments,
+      comments,
+      "/api/Tweets/TweetActions/comments/GET",
+      id
+    );
+    if(response.status === 401){
+      setcommentsN(true)
+    }
+    if(response.status === 200){
+      setfetching(true)
+      setDocumentLeft(totalDocuments)
+      setDocumentLeft(e=>e-3)
+    }
+  }, []);
+  useEffect(() => {
+    setcommentsN(SingleTweet.Comments);
+    setTweetLikes(SingleTweet.Likes);
+    if (SingleTweet.Comments === 0) {
+      setnoComments(true);
+    }
+  }, [SingleTweet]);
+
 
 
   const handleClickOpen = () => {
     setOpen(true);
   };
   const handleClose = () => {
+    setcommentsN((e) => e + 1);
     setOpen(false);
   };
-
 
   useEffect(() => {
     if (fetchPath && typeof fetchPath === "string") {
       fetchTweet();
     }
   }, [fetchPath]);
+
   const fetchTweet = async () => {
     if (fetchPath) {
       const response = await Server_call(fetchPath, id, "POST");
-      console.log(response)
       if (response.status === 200 || response) {
-        GetComments(limit,skip,setskip,setfetching,setTotalComment,setcomments,comments,'/api/Tweets/TweetActions/comments/GET',id)
+        // GetComments(
+        //   limit,
+        //   skip,
+        //   setskip,
+        //   setfetching,
+        //   setDocumentLeft,
+        //   setcomments,
+        //   comments,
+        //   "/api/Tweets/TweetActions/comments/GET",
+        //   id
+        // );
         const data = await response.json();
         setSingleTweet(data.message);
         setfound(true);
-        setfetching(false);
-      } 
+        setDocumentLeft(data.message.Comments);
+      }
       if (response && response.status === 404) {
         setfound(false);
         seterrorCode(404);
-      } 
+      }
       if (response && response.status === 400) {
         setfound(false);
         seterrorCode(400);
       }
-      if(response.status === 401){
-        setnoComments(true)
+      if (response.status === 401) {
+        setnoComments(true);
       }
     }
   };
 
-  const like = async (id) => {
+  const like = async () => {
     setTweetLikes((e) => e + 1);
     const response = await like_tweet(
       SingleTweet._id,
       "like",
       UserDetails.UserId,
       SingleTweet.postedBy,
-      likePath
+      "/api/Tweets/TweetActions/Like?t=t"
     );
     if (response && response.status === 200) {
       const response2 = await like_tweet(
@@ -154,12 +192,16 @@ export default function Page() {
     }
   };
 
-
   const dislike = () => {
-    like_tweet(SingleTweet._id, "dislike", UserDetails.UserId,SingleTweet.postedBy,likePath);
+    like_tweet(
+      SingleTweet._id,
+      "dislike",
+      UserDetails.UserId,
+      SingleTweet.postedBy,
+      "/api/Tweets/TweetActions/Like?t=t"
+    );
     setTweetLikes((e) => e - 1);
   };
-
 
   const [ImageGrid, setImageGrid] = useState({
     Left: {
@@ -178,24 +220,51 @@ export default function Page() {
       gridTemplateRows: "",
     },
   });
-  useEffect(() => {
-    getting_image_grid_styles(SingleTweet.imageAmount,setImageGrid)
-  }, []);
+
 
   useEffect(() => {
-    console.log(";documentLeft : ",TotalComment )
-    if (TotalComment > 0 && fetching && TotalComment !== null&& TotalComment!==undefined && comments.length>0) {
-      console.log('fetching Documents  again')
-      GetComments(limit,skip,setskip,setfetching,setTotalComment,setcomments,comments,'/api/Tweets/TweetActions/comments/GET',id)
+    getting_image_grid_styles(SingleTweet.imageAmount, setImageGrid);
+  }, []);
+
+
+  useEffect(() => {
+    console.log("Documents Left : ", DocumentLeft);
+    if (DocumentLeft < 5 && DocumentLeft > 0 && DocumentLeft != null) {
+      setlimit(DocumentLeft);
     }
-    if(TotalComment < 0 && fetching && TotalComment !== null&& TotalComment!==undefined && comments.length>0){
-      setfetching(false)
+    if (DocumentLeft <= 0 && DocumentLeft != null) {
+      sethasMore(false);
     }
-  }, [TotalComment]);
+    if (DocumentLeft > 0 && fetching && DocumentLeft != null &&  comments>0) {
+      console.log('after initial')
+      GetComments(
+        limit,
+        skip,
+        setskip,
+        setfetching,
+        setDocumentLeft,
+        setcomments,
+        comments,
+        "/api/Tweets/TweetActions/comments/GET",
+        id
+      );
+    }
+  }, [DocumentLeft]);
+
+
+  useEffect(() => {
+    console.log('comment array : ',comments)
+  }, [comments]);
 
   const follow = async () => {
     setfollowed(true);
-    updatingUserDetails(setUserDetails,UserDetails,'Following','i',UserDetails.Following)
+    updatingUserDetails(
+      setUserDetails,
+      UserDetails,
+      "Following",
+      "i",
+      UserDetails.Following
+    );
     followers(
       UserDetails.UserId,
       UserDetails.UserTag,
@@ -206,7 +275,13 @@ export default function Page() {
   };
   const unfollow = async () => {
     setfollowed(false);
-    updatingUserDetails(setUserDetails,UserDetails,'Following','d',UserDetails.Following)
+    updatingUserDetails(
+      setUserDetails,
+      UserDetails,
+      "Following",
+      "d",
+      UserDetails.Following
+    );
     followers(
       UserDetails.UserId,
       UserDetails.UserTag,
@@ -214,15 +289,14 @@ export default function Page() {
       SingleTweet.postedBy,
       "d"
     );
-    
   };
-const router = useRouter()
+  const router = useRouter();
   if (!found) {
-    router.push('/error')
+    router.push("/error");
   }
   useEffect(() => {
-    console.log(likePath)
-  }, [likePath]);
+    console.log("server side commennt : ", server_side_comment);
+  }, [server_side_comment]);
   return (
     <div className="element-with-scrollbar w-2/4 flex flex-col gap-2 items-center mr-5">
       <div className=" h-auto w-[98%] background_of_sub_component rounded-xl pb-5 mb-3">
@@ -509,7 +583,8 @@ const router = useRouter()
           />
         </div>
       </div>
-      {server_side_comment && clientSide &&
+      {server_side_comment &&
+      server_side_comment.Text &&
       server_side_comment.length > 0
         ? server_side_comment.map((e) => {
             return (
@@ -518,7 +593,7 @@ const router = useRouter()
                 author={e.postedBy}
                 Text={e.Text}
                 LikedBy={e.LikedBy}
-                unique={e.id}
+                unique={e._id}
                 Image={e.image}
                 link={"/tweet/"}
                 ImageAmount={e.imageAmount}
@@ -549,33 +624,32 @@ const router = useRouter()
             );
           })
         : null}
-      {
-  noComments ? null :
-  (
-    comments && comments.length > 0 ?
-      comments.map((e, index) => (
-        <Tweets
-          key={e._id} // Add a unique key prop for each mapped element
-          authorImage={e.UserImage}
-          author={e.postedBy}
-          Text={e.Text}
-          LikedBy={e.LikedBy}
-          unique={e._id}
-          Image={e.image}
-          link={"/tweet/"}
-          query={"c"}
-          ImageAmount={e.imageAmount}
-          User_using={UserDetails.UserId}
-          Likes={e.Likes}
-          Comments={e.Comments}
-        />
-      )) :
-      null
-  )
-}
-{
-  TotalComment>0 || TotalComment===undefined || TotalComment===null?<Spinner/>:<div className="text-white">no comments on this tweet</div>
-}
+
+      {noComments ? (
+        <div className="text-white">No comments on this tweet</div>
+      ) : comments && comments.length > 0 ? (
+        comments.map((e, index) => (
+          <Tweets
+            key={e._id} // Add a unique key prop for each mapped element
+            authorImage={e.UserImage}
+            author={e.postedBy}
+            Text={e.Text}
+            LikedBy={e.LikedBy}
+            unique={e._id}
+            Image={e.image}
+            link={"/tweet/"}
+            query={"c"}
+            ImageAmount={e.imageAmount}
+            User_using={UserDetails.UserId}
+            Likes={e.Likes}
+            Comments={e.Comments}
+          />
+        ))
+      ) : (
+        <div>
+          <Spinner />
+        </div>
+      )}
     </div>
   );
 }

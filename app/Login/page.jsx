@@ -24,6 +24,7 @@ const Login = () => {
       [name]: value,
     });
   };
+  
   const post = async () => {
     setloading(true)
     setValidation(true)
